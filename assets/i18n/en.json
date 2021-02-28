@@ -1,0 +1,54 @@
+{
+  "alert_dialog": {
+    "cancel": "Cancel",
+    "clear": "Clear",
+    "confirm": "Confirm",
+    "confirm_action_title": "Confirm Action"
+  },
+  "amount": "amount",
+  "auth": {
+    "check": "Check",
+    "enter_pin": "PIN",
+    "entry_mismatch": "Entries don't match",
+    "min_pin_length": "Min four digits",
+    "pin": "PIN",
+    "verify_pin": "Verify PIN"
+  },
+  "chat": {
+    "chat_with": "Chat with",
+    "chat_with_peer": "Go!",
+    "enter_peer_pubkey": "Pubkey",
+    "info": "Chat"
+  },
+  "network": {
+    "loading": "loading",
+    "not_yet_established": "Connection not yet established"
+  },
+  "not_implemented_yet": "Not implemented yet",
+  "onboarding": {
+    "generate_seed": "Generate",
+    "help_text_enter_mnemonic_or_seed": "Enter your mnemonic or generate one",
+    "next_step": "Next",
+    "reminder_make_sure_to_write_down_seed": "Make sure to note down your mnemonic and private key. It is required to recover access to your identity on Nostr.",
+    "welcome_message": "Welcome to Fluestr. Fluestr is a client to the decentralized social media protocol Nostr.",
+    "your_menemonic_help_text": "Your Mnemonic",
+    "your_private_key_help_text": "Your Private Key",
+    "your_public_key_help_text": "Your Public Key"
+  },
+  "paste_from_clipboard": "Paste from clipboard",
+  "prefs": {
+    "add_relay_btn": "Add a relay",
+    "btn": "Settings",
+    "language_label": "Language",
+    "theme_label": "Theme",
+    "title": "Settings"
+  },
+  "qr": {
+    "open_qr_scanner": "Open QR-Code scanner"
+  },
+  "receive": "Receive",
+  "send": "Send",
+  "title": "SendMany App",
+  "total": "Total",
+  "unconfirmed": "unconfirmed"
+}

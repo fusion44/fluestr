@@ -2,15 +2,21 @@ library fluestr.constants;
 
 import 'package:flutter/material.dart';
 
-const String heroTagfluestrLogo = 'hero_fluestr_logo';
+const String heroTagFluestrLogo = 'hero_fluestr_logo';
 
-// Preferences keys
+// Prefrence Hive box names
+const String prefBoxNameSettings = 'pref_settings';
+const String prefOnboardingFinished = 'onboarding_finished';
 const String prefLanguageCode = 'language_preference';
 const String prefTheme = 'theme_preference';
-const String prefOnboardingFinished = 'onboarding_finished';
-const String prefNumNodes = 'num_nodes';
 const String prefPinActive = 'pin_active';
 const String prefPin = 'pin_string';
+const String prefCredentials = 'pref_credentials';
+
+// Routes
+const String routeSplash = '/';
+const String routeOnboarding = '/onboard';
+const String routeHome = '/home';
 
 // Themeing
 const fluestrBackground = Color(0xff32333d);

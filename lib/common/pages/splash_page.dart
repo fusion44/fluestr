@@ -35,6 +35,7 @@ class _SplashPageState extends State<SplashPage> {
     if (onBoardingFinished) {
       context.goNamed('home');
     } else {
+      await box.put(prefCurrentlyOnboarding, true);
       context.goNamed('onboarding');
     }
   }

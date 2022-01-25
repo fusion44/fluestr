@@ -19,12 +19,20 @@ Future<void> main() async {
 
   final _router = GoRouter(
     redirect: (state) {
+      if (state.location == '/splash') return null;
+
       final onBoardingFinished = box.get(
         prefOnboardingFinished,
         defaultValue: false,
       );
 
-      if (!onBoardingFinished) return '/onboarding';
+      if (!onBoardingFinished) {
+        final currentlyOnboarding = box.get(
+          prefCurrentlyOnboarding,
+          defaultValue: false,
+        );
+        if (!currentlyOnboarding) return '/onboarding';
+      }
       return null;
     },
     debugLogDiagnostics: true,

@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 
 const String heroTagFluestrLogo = 'hero_fluestr_logo';
 
-// Prefrence Hive box names
-const String prefBoxNameSettings = 'pref_settings';
+// Preference Hive box names
+const String prefBoxNameSettings = 'fluestr_pref_settings';
 const String prefOnboardingFinished = 'onboarding_finished';
+const String prefCurrentlyOnboarding = 'currently_onboarding';
 const String prefLanguageCode = 'language_preference';
 const String prefTheme = 'theme_preference';
 const String prefPinActive = 'pin_active';

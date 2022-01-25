@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -14,21 +14,60 @@ import 'common/pages/splash_page.dart';
 Future<void> main() async {
   await Hive.initFlutter();
   _registerHiveAdapters();
-  runApp(MyApp());
+
+  final box = await Hive.openBox(prefBoxNameSettings);
+
+  final _router = GoRouter(
+    redirect: (state) {
+      final onBoardingFinished = box.get(
+        prefOnboardingFinished,
+        defaultValue: false,
+      );
+
+      if (!onBoardingFinished) return '/onboarding';
+      return null;
+    },
+    debugLogDiagnostics: true,
+    urlPathStrategy: UrlPathStrategy.path,
+    initialLocation: '/splash',
+    routes: [
+      GoRoute(
+        path: '/',
+        name: 'home',
+        builder: (context, state) => HomePage(),
+      ),
+      GoRoute(
+        path: '/splash',
+        name: 'splash',
+        builder: (context, state) => SplashPage(),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        name: 'onboarding',
+        builder: (context, state) {
+          return Scaffold(body: OnboardingPage());
+        },
+      ),
+    ],
+    errorBuilder: (context, state) =>
+        Scaffold(body: Center(child: Text(state.error.toString()))),
+  );
+
+  runApp(MyApp(_router));
 }
 
 class MyApp extends StatelessWidget {
+  final GoRouter _router;
+
+  MyApp(this._router);
+
   @override
   Widget build(BuildContext context) {
     var delegates = _buildLocalizationDelegates();
-    return GetMaterialApp(
+    return MaterialApp.router(
+      routeInformationParser: _router.routeInformationParser,
+      routerDelegate: _router.routerDelegate,
       theme: ThemeData.dark(),
-      initialRoute: routeSplash,
-      getPages: [
-        GetPage(name: routeSplash, page: () => SplashPage()),
-        GetPage(name: routeOnboarding, page: () => OnboardingPage()),
-        GetPage(name: routeHome, page: () => HomePage()),
-      ],
       localizationsDelegates: delegates,
       localeResolutionCallback: (deviceLocale, supportedLocales) {
         return _checkLocaleSetting(deviceLocale);

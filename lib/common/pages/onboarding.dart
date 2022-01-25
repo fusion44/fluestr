@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 
-import '../../pedantic.dart';
 import '../constants.dart';
 import '../models/credentials.dart';
 import 'onboarding/onboarding_0.dart';
@@ -65,7 +64,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         onFinish: _step1Results,
       );
     } else if (_currentStep == 2) {
-      return OnboardingPage2(onFinish: _step2Results);
+      return OnboardingPage2(onFinish: () => _step2Results(context));
     } else {
       return Center(child: Text('Unknown step $_currentStep'));
     }
@@ -86,8 +85,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
     });
   }
 
-  void _step2Results() {
+  void _step2Results(BuildContext context) {
     _box.put(prefOnboardingFinished, true);
-    unawaited(Get.offAndToNamed(routeSplash));
+    context.goNamed('home');
   }
 }

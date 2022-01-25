@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 
-import '../../pedantic.dart';
 import '../constants.dart';
 
 class SplashPage extends StatefulWidget {
@@ -34,9 +33,9 @@ class _SplashPageState extends State<SplashPage> {
       defaultValue: false,
     );
     if (onBoardingFinished) {
-      unawaited(Get.offAndToNamed(routeHome));
+      context.goNamed('home');
     } else {
-      unawaited(Get.offAndToNamed(routeOnboarding));
+      context.goNamed('onboarding');
     }
   }
 

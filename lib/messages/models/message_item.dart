@@ -43,14 +43,13 @@ class MessageItem implements Comparable<MessageItem> {
   });
 
   MessageItem copyWith({
-    String id,
-    String from,
-    String text,
-    bool delivered,
-    bool deliveryFailure,
-    String errorMessage,
-    bool aboveIsSame,
-    bool belowIsSame,
+    String? id,
+    String? text,
+    bool? delivered,
+    bool? deliveryFailure,
+    String? errorMessage,
+    bool? aboveIsSame,
+    bool? belowIsSame,
   }) {
     return MessageItem(
       id ?? this.id,

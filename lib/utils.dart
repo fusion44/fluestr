@@ -15,7 +15,7 @@ Uint8List randomBytes32() {
 
 /// Translates a string with the given [key] and the [translationParams].
 String tr(BuildContext context, String key,
-    [Map<String, String> translationParams]) {
+    {Map<String, String> translationParams = const {}}) {
   return FlutterI18n.translate(
     context,
     key,

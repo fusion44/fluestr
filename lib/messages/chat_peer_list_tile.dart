@@ -8,7 +8,7 @@ class ChatPeerListTile extends StatelessWidget {
   final Color color;
   final String alias;
   final MessageItem lastMessage;
-  final Function(String) onTap;
+  final Function(String)? onTap;
 
   const ChatPeerListTile(
     this.pubKey,
@@ -16,7 +16,7 @@ class ChatPeerListTile extends StatelessWidget {
     this.color = Colors.black,
     this.alias = '',
     this.onTap,
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   void _onTap(BuildContext context) {}

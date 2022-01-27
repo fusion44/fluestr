@@ -31,7 +31,7 @@
     "next_step": "Next",
     "reminder_make_sure_to_write_down_seed": "Make sure to note down your mnemonic and private key. It is required to recover access to your identity on Nostr.",
     "welcome_message": "Welcome to Fluestr. Fluestr is a client to the decentralized social media protocol Nostr.",
-    "your_menemonic_help_text": "Your Mnemonic",
+    "your_mnemonic_help_text": "Your Mnemonic",
     "your_private_key_help_text": "Your Private Key",
     "your_public_key_help_text": "Your Public Key"
   },

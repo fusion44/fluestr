@@ -23,7 +23,7 @@ class _FeedPageState extends State<FeedPage> {
 
   @override
   void dispose() {
-    _searchPeerController?.dispose();
+    _searchPeerController.dispose();
     super.dispose();
   }
 

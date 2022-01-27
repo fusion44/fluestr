@@ -30,8 +30,8 @@ class Dialog extends StatelessWidget {
   ///
   /// Typically used in conjunction with [showDialog].
   const Dialog({
-    Key key,
-    this.child,
+    Key? key,
+    required this.child,
     this.insetAnimationDuration = const Duration(milliseconds: 100),
     this.insetAnimationCurve = Curves.decelerate,
   }) : super(key: key);
@@ -155,21 +155,20 @@ class CustomAlertDialog extends StatelessWidget {
   /// null, which implies a default that depends on the values of the other
   /// properties. See the documentation of [titlePadding] for details.
   const CustomAlertDialog({
-    Key key,
+    Key? key,
     this.title,
     this.titlePadding,
     this.content,
     this.contentPadding = const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 24.0),
-    this.actions,
+    this.actions = const [],
     this.semanticLabel,
-  })  : assert(contentPadding != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// The (optional) title of the dialog is displayed in a large font at the top
   /// of the dialog.
   ///
   /// Typically a [Text] widget.
-  final Widget title;
+  final Widget? title;
 
   /// Padding around the title.
   ///
@@ -181,7 +180,7 @@ class CustomAlertDialog extends StatelessWidget {
   /// provided (but see [contentPadding]). If it _is_ null, then an extra 20
   /// pixels of bottom padding is added to separate the [title] from the
   /// [actions].
-  final EdgeInsetsGeometry titlePadding;
+  final EdgeInsetsGeometry? titlePadding;
 
   /// The (optional) content of the dialog is displayed in the center of the
   /// dialog in a lighter font.
@@ -189,7 +188,7 @@ class CustomAlertDialog extends StatelessWidget {
   /// Typically, this is a [ListView] containing the contents of the dialog.
   /// Using a [ListView] ensures that the contents can scroll if they are too
   /// big to fit on the display.
-  final Widget content;
+  final Widget? content;
 
   /// Padding around the content.
   ///
@@ -223,7 +222,7 @@ class CustomAlertDialog extends StatelessWidget {
   ///
   ///  * [SemanticsConfiguration.isRouteName], for a description of how this
   ///    value is used.
-  final String semanticLabel;
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +234,7 @@ class CustomAlertDialog extends StatelessWidget {
         padding: titlePadding ??
             EdgeInsets.fromLTRB(24.0, 24.0, 24.0, content == null ? 20.0 : 0.0),
         child: DefaultTextStyle(
-          style: Theme.of(context).textTheme.headline6,
+          style: Theme.of(context).textTheme.headline6!,
           child: Semantics(child: title, namesRoute: true),
         ),
       ));
@@ -250,7 +249,7 @@ class CustomAlertDialog extends StatelessWidget {
         case TargetPlatform.windows:
         case TargetPlatform.macOS:
           label = semanticLabel ??
-              MaterialLocalizations.of(context)?.alertDialogLabel;
+              MaterialLocalizations.of(context).alertDialogLabel;
       }
     }
 
@@ -260,24 +259,22 @@ class CustomAlertDialog extends StatelessWidget {
           child: Padding(
             padding: contentPadding,
             child: DefaultTextStyle(
-              style: Theme.of(context).textTheme.subtitle1,
-              child: content,
+              style: Theme.of(context).textTheme.subtitle1!,
+              child: content ?? Text('?? Content null ??'),
             ),
           ),
         ),
       );
     }
 
-    if (actions != null) {
-      children.add(
-        ButtonBarTheme(
-          data: ButtonBarThemeData(),
-          child: ButtonBar(
-            children: actions,
-          ),
+    children.add(
+      ButtonBarTheme(
+        data: ButtonBarThemeData(),
+        child: ButtonBar(
+          children: actions,
         ),
-      );
-    }
+      ),
+    );
 
     Widget dialogChild = IntrinsicWidth(
       child: Column(
@@ -328,9 +325,9 @@ class CustomAlertDialog extends StatelessWidget {
 class SimpleDialogOption extends StatelessWidget {
   /// Creates an option for a [SimpleDialog].
   const SimpleDialogOption({
-    Key key,
+    Key? key,
     this.onPressed,
-    this.child,
+    required this.child,
   }) : super(key: key);
 
   /// The callback that is called when this option is selected.
@@ -339,7 +336,7 @@ class SimpleDialogOption extends StatelessWidget {
   ///
   /// When used in a [SimpleDialog], this will typically call [Navigator.pop]
   /// with a value for [showDialog] to complete its future with.
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   /// The widget below this widget in the tree.
   ///
@@ -430,21 +427,19 @@ class SimpleDialog extends StatelessWidget {
   ///
   /// The [titlePadding] and [contentPadding] arguments must not be null.
   const SimpleDialog({
-    Key key,
+    Key? key,
     this.title,
     this.titlePadding = const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 0.0),
-    this.children,
+    required this.children,
     this.contentPadding = const EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 16.0),
     this.semanticLabel,
-  })  : assert(titlePadding != null),
-        assert(contentPadding != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// The (optional) title of the dialog is displayed in a large font at the top
   /// of the dialog.
   ///
   /// Typically a [Text] widget.
-  final Widget title;
+  final Widget? title;
 
   /// Padding around the title.
   ///
@@ -488,7 +483,7 @@ class SimpleDialog extends StatelessWidget {
   ///
   ///  * [SemanticsConfiguration.isRouteName], for a description of how this
   ///    value is used.
-  final String semanticLabel;
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -500,7 +495,7 @@ class SimpleDialog extends StatelessWidget {
         Padding(
           padding: titlePadding,
           child: DefaultTextStyle(
-            style: Theme.of(context).textTheme.headline6,
+            style: Theme.of(context).textTheme.headline6!,
             child: Semantics(namesRoute: true, child: title),
           ),
         ),
@@ -516,17 +511,15 @@ class SimpleDialog extends StatelessWidget {
         case TargetPlatform.macOS:
         case TargetPlatform.windows:
           label =
-              semanticLabel ?? MaterialLocalizations.of(context)?.dialogLabel;
+              semanticLabel ?? MaterialLocalizations.of(context).dialogLabel;
       }
     }
 
-    if (children != null) {
-      body.add(Flexible(
-          child: SingleChildScrollView(
-        padding: contentPadding,
-        child: ListBody(children: children),
-      )));
-    }
+    body.add(Flexible(
+        child: SingleChildScrollView(
+      padding: contentPadding,
+      child: ListBody(children: children),
+    )));
 
     Widget dialogChild = IntrinsicWidth(
       stepWidth: 56.0,
@@ -553,13 +546,12 @@ class SimpleDialog extends StatelessWidget {
 
 class _DialogRoute<T> extends PopupRoute<T> {
   _DialogRoute({
-    @required this.theme,
+    required this.theme,
     bool barrierDismissible = true,
     this.barrierLabel,
-    @required this.child,
-    RouteSettings settings,
-  })  : assert(barrierDismissible != null),
-        _barrierDismissible = barrierDismissible,
+    required this.child,
+    RouteSettings? settings,
+  })  : _barrierDismissible = barrierDismissible,
         super(settings: settings);
 
   final Widget child;
@@ -576,7 +568,7 @@ class _DialogRoute<T> extends PopupRoute<T> {
   Color get barrierColor => Colors.black54;
 
   @override
-  final String barrierLabel;
+  final String? barrierLabel;
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
@@ -602,52 +594,4 @@ class _DialogRoute<T> extends PopupRoute<T> {
         opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
         child: child);
   }
-}
-
-/// Displays a dialog above the current contents of the app.
-///
-/// This function takes a `builder` which typically builds a [Dialog] widget.
-/// Content below the dialog is dimmed with a [ModalBarrier]. This widget does
-/// not share a context with the location that `showDialog` is originally
-/// called from. Use a [StatefulBuilder] or a custom [StatefulWidget] if the
-/// dialog needs to update dynamically.
-///
-/// The `context` argument is used to look up the [Navigator] and [Theme] for
-/// the dialog. It is only used when the method is called. Its corresponding
-/// widget can be safely removed from the tree before the dialog is closed.
-///
-/// The `child` argument is deprecated, and should be replaced with `builder`.
-///
-/// Returns a [Future] that resolves to the value (if any) that was passed to
-/// [Navigator.pop] when the dialog was closed.
-///
-/// The dialog route created by this method is pushed to the root navigator.
-/// If the application has multiple [Navigator] objects, it may be necessary to
-/// call `Navigator.of(context, rootNavigator: true).pop(result)` to close the
-/// dialog rather just 'Navigator.pop(context, result)`.
-///
-/// See also:
-///  * [AlertDialog], for dialogs that have a row of buttons below a body.
-///  * [SimpleDialog], which handles the scrolling of the contents and does
-///    not show buttons below its body.
-///  * [Dialog], on which [SimpleDialog] and [AlertDialog] are based.
-///  * <https://material.google.com/components/dialogs.html>
-Future<T> customShowDialog<T>({
-  @required
-      BuildContext context,
-  bool barrierDismissible = true,
-  @Deprecated(
-      'Instead of using the "child" argument, return the child from a closure '
-      'provided to the "builder" argument. This will ensure that the BuildContext '
-      'is appropriate for widgets built in the dialog.')
-      Widget child,
-  WidgetBuilder builder,
-}) {
-  assert(child == null || builder == null);
-  return Navigator.of(context, rootNavigator: true).push(_DialogRoute<T>(
-    child: child ?? Builder(builder: builder),
-    theme: Theme.of(context),
-    barrierDismissible: barrierDismissible,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-  ));
 }

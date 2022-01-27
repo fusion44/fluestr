@@ -15,8 +15,8 @@ class OnboardingPage extends StatefulWidget {
 
 class _OnboardingPageState extends State<OnboardingPage> {
   int _currentStep = 0;
-  Box _box;
-  Credentials _credentials;
+  late Box _box;
+  late Credentials _credentials;
 
   @override
   void initState() {

@@ -7,7 +7,7 @@ class OnboardingPage1 extends StatefulWidget {
   final Credentials credentials;
   final Function() onFinish;
 
-  const OnboardingPage1(this.credentials, {Key key, this.onFinish})
+  const OnboardingPage1(this.credentials, {Key? key, required this.onFinish})
       : super(key: key);
 
   @override
@@ -19,8 +19,7 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
 
   @override
   void initState() {
-    if (widget.credentials.mnemonic == null ||
-        widget.credentials.mnemonic.isEmpty) {
+    if (widget.credentials.mnemonic.isEmpty) {
       _privKeyOnly = true;
     }
 
@@ -35,7 +34,7 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
         if (!_privKeyOnly)
           _buildHeaderRow(
             theme,
-            'onboarding.your_menemonic_help_text',
+            'onboarding.your_mnemonic_help_text',
             Icons.edit,
           ),
         if (!_privKeyOnly)
@@ -61,7 +60,7 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
         SizedBox(height: 8.0),
         TrText(
           'onboarding.reminder_make_sure_to_write_down_seed',
-          style: theme.textTheme.headline6
+          style: theme.textTheme.headline6!
               .copyWith(color: Colors.redAccent, fontSize: 16.0),
           textAlign: TextAlign.center,
         ),
@@ -74,7 +73,7 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
     );
   }
 
-  Widget _buildHeaderRow(ThemeData theme, String textId, [IconData icon]) {
+  Widget _buildHeaderRow(ThemeData theme, String textId, [IconData? icon]) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
       child: Row(

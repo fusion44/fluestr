@@ -1,6 +1,7 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
-import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/material.dart';
+
 import '../../feed/feed_page.dart';
 import '../../messages/messages_page.dart';
 import '../../settings/settings_page.dart';
@@ -22,9 +23,9 @@ class _HomePageState extends State<HomePage>
   final autoSizeGroup = AutoSizeGroup();
   var _bottomNavIndex = 0;
 
-  AnimationController _animationController;
-  Animation<double> animation;
-  CurvedAnimation curve;
+  late AnimationController _animationController;
+  late Animation<double> animation;
+  late CurvedAnimation curve;
 
   @override
   void initState() {

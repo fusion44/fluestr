@@ -14,7 +14,7 @@ import '../../widgets/widgets.dart';
 class OnboardingPage0 extends StatefulWidget {
   final Function(Credentials) onFinish;
 
-  const OnboardingPage0({Key key, this.onFinish}) : super(key: key);
+  const OnboardingPage0({Key? key, required this.onFinish}) : super(key: key);
 
   @override
   _OnboardingPage0State createState() => _OnboardingPage0State();
@@ -49,12 +49,12 @@ class _OnboardingPage0State extends State<OnboardingPage0> {
         ),
         _buildInputStack(),
         SizedBox(height: 24.0),
-        _buildControllRowStep0(),
+        _buildControlRowStep0(),
       ]),
     );
   }
 
-  Row _buildControllRowStep0() {
+  Row _buildControlRowStep0() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -68,7 +68,9 @@ class _OnboardingPage0State extends State<OnboardingPage0> {
                 }
               : () async {
                   final clipboardData = await Clipboard.getData('text/plain');
-                  _inputCtrl.text = clipboardData.text.replaceAll('\n', '');
+                  if (clipboardData != null && clipboardData.text != null) {
+                    _inputCtrl.text = clipboardData.text!.replaceAll('\n', '');
+                  }
                 },
           icon: Icon(Icons.paste),
           label: _showClearButton
@@ -120,7 +122,7 @@ class _OnboardingPage0State extends State<OnboardingPage0> {
 
   void _checkSeedInput() {
     final t = _inputCtrl.text;
-    if (t == null || t.isEmpty) {
+    if (t.isEmpty) {
       // decide whether to show clear or paste button
       setState(() {
         _showClearButton = false;
@@ -155,7 +157,7 @@ class _OnboardingPage0State extends State<OnboardingPage0> {
   FutureOr<Credentials> _genKeysFromMnemonic() async {
     final seed = bip39.mnemonicToSeed(_inputCtrl.text);
     final root = bip32.BIP32.fromSeed(seed);
-    final privKey = hex.HEX.encode(root.privateKey);
+    final privKey = hex.HEX.encode(root.privateKey!.toList());
     final pubKey = bip340.getPublicKey(privKey);
     return Credentials(_inputCtrl.text, privKey, pubKey);
   }

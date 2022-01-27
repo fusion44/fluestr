@@ -11,21 +11,21 @@ class Event {
   final String relay;
   final String id;
   final String pubkey;
-  final int createdAt;
+  final int? createdAt;
   final int kind;
   final List<Tag> tags;
   final String content;
   final String sig;
 
   Event({
-    this.relay,
-    this.id,
-    this.pubkey,
+    required this.relay,
+    required this.id,
+    required this.pubkey,
     this.createdAt,
-    this.kind,
-    this.tags,
-    this.content,
-    this.sig,
+    required this.kind,
+    required this.tags,
+    required this.content,
+    required this.sig,
   });
 
   static Event fromJson(Map<String, dynamic> json, [String relay = '']) {
@@ -49,14 +49,14 @@ class Event {
   }
 
   Event copyWith({
-    String relay,
-    String id,
-    String pubkey,
-    int createdAt,
-    int kind,
-    List<Tag> tags,
-    String content,
-    String sig,
+    String? relay,
+    String? id,
+    String? pubkey,
+    int? createdAt,
+    int? kind,
+    List<Tag>? tags,
+    String? content,
+    String? sig,
   }) {
     return Event(
       relay: relay ?? this.relay,
@@ -76,9 +76,7 @@ class Event {
     data['pubkey'] = pubkey;
     data['created_at'] = createdAt;
     data['kind'] = kind;
-    if (tags != null) {
-      data['tags'] = tags.map((v) => v.toJson()).toList();
-    }
+    data['tags'] = tags.map((v) => v.toJson()).toList();
     data['content'] = content;
     data['sig'] = sig;
     return data;
@@ -106,7 +104,7 @@ class Event {
       pubkey,
       createdAt,
       kind,
-      tags ?? [],
+      tags,
       content,
     ]); //.replaceAll(RegExp(r'\s+'), '');
     return s;

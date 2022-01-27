@@ -4,15 +4,15 @@ import '../../utils.dart';
 
 class TrText extends StatelessWidget {
   final String text;
-  final TextStyle style;
-  final TextOverflow overflow;
-  final bool softWrap;
-  final TextAlign textAlign;
+  final TextStyle? style;
+  final TextOverflow? overflow;
+  final bool? softWrap;
+  final TextAlign? textAlign;
   final bool selectable;
 
   const TrText(
     this.text, {
-    Key key,
+    Key? key,
     this.style,
     this.overflow,
     this.softWrap,

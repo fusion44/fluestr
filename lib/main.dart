@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'common/constants.dart';
@@ -78,7 +77,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark(),
       localizationsDelegates: delegates,
       localeResolutionCallback: (deviceLocale, supportedLocales) {
-        return _checkLocaleSetting(deviceLocale);
+        if (deviceLocale != null) return _checkLocaleSetting(deviceLocale);
       },
     );
   }

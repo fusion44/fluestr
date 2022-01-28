@@ -30,8 +30,7 @@ dependencies:
   animated_bottom_navigation_bar: ^0.3.2
   auto_size_text: ^3.0.0
   hex: ^0.2.0
-
-
+  flutter_bloc: ^8.0.1
   cupertino_icons: ^1.0.2
 
 dev_dependencies:

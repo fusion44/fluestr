@@ -31,7 +31,10 @@ dependencies:
   auto_size_text: ^3.0.0
   hex: ^0.2.0
   flutter_bloc: ^8.0.1
+  equatable: ^2.0.3
   cupertino_icons: ^1.0.2
+  settings_ui: ^2.0.2
+  
 
 dev_dependencies:
   flutter_test:

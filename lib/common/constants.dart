@@ -13,6 +13,7 @@ const String prefTheme = 'theme_preference';
 const String prefPinActive = 'pin_active';
 const String prefPin = 'pin_string';
 const String prefCredentials = 'pref_credentials';
+const String prefRelayUrls = 'pref_relay_urls';
 
 // Routes
 const String routeSplash = '/';

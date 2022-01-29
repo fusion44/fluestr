@@ -1,4 +1,7 @@
+import 'common/models/relay.dart';
+import 'common/relay_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -6,9 +9,12 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'common/constants.dart';
 import 'common/models/credentials.dart';
+import 'common/pages/edit_relays_page.dart';
 import 'common/pages/home_page.dart';
 import 'common/pages/onboarding.dart';
 import 'common/pages/splash_page.dart';
+
+late final RelayRepository _repo;
 
 Future<void> main() async {
   await Hive.initFlutter();
@@ -41,7 +47,10 @@ Future<void> main() async {
       GoRoute(
         path: '/',
         name: 'home',
-        builder: (context, state) => HomePage(),
+        builder: (context, state) => RepositoryProvider.value(
+          value: _repo,
+          child: HomePage(),
+        ),
       ),
       GoRoute(
         path: '/splash',
@@ -55,12 +64,27 @@ Future<void> main() async {
           return Scaffold(body: OnboardingPage());
         },
       ),
+      GoRoute(
+        path: '/relays',
+        name: 'relays',
+        builder: (context, state) => RepositoryProvider.value(
+          value: _repo,
+          child: EditRelaysPage(),
+        ),
+      )
     ],
     errorBuilder: (context, state) =>
         Scaffold(body: Center(child: Text(state.error.toString()))),
   );
 
+  await _initRepo();
+
   runApp(MyApp(_router));
+}
+
+Future<void> _initRepo() async {
+  _repo = RelayRepository();
+  await _repo.init();
 }
 
 class MyApp extends StatelessWidget {
@@ -112,4 +136,5 @@ class MyApp extends StatelessWidget {
 
 void _registerHiveAdapters() {
   Hive.registerAdapter(CredentialsAdapter());
+  Hive.registerAdapter(RelayAdapter());
 }

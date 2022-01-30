@@ -23,7 +23,7 @@ class Event extends Equatable {
 
   Event({
     required this.channel,
-    required this.relay,
+    this.relay = '',
     required this.id,
     required this.pubkey,
     required this.createdAt,
@@ -45,6 +45,21 @@ class Event extends Equatable {
         kind = -1,
         tags = const [],
         content = '',
+        sig = '',
+        verified = false;
+
+  /// Event to publish a the a contact list to relays
+  /// https://github.com/fiatjaf/nostr/blob/master/nips/02.md
+  Event.kind3(String pubKey, List<ProfileTag> tags)
+      : pubkey = pubKey,
+        tags = tags,
+        createdAt = DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        createdAtDt = DateTime.now(),
+        id = '',
+        kind = 3,
+        content = '',
+        channel = 0,
+        relay = '',
         sig = '',
         verified = false;
 
@@ -157,7 +172,7 @@ class Event extends Equatable {
     return s;
   }
 
-  Future<String> _hashHEX() async {
+  String _hashHEX() {
     final bytes = utf8.encode(_serialize());
     final eventHash = sha256.convert(bytes);
     final h = HEX.encode(eventHash.bytes);

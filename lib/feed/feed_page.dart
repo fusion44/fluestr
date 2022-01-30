@@ -1,3 +1,5 @@
+import '../contacts/blocs/contacts/contacts_bloc.dart';
+import '../contacts/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -64,9 +66,19 @@ class _FeedPageState extends State<FeedPage> {
 
   Widget _buildPostTile(Event e, ThemeData theme) {
     return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: fluestrBlue200,
-        child: Icon(Icons.person),
+      leading: BlocBuilder<ContactsBloc, ContactsState>(
+        builder: (context, state) {
+          if (state is ContactsUpdate &&
+              state.contacts.keys.contains(e.pubkey)) {
+            final p = state.contacts[e.pubkey]!;
+            if (p.profile.picture.isNotEmpty) {
+              return ProfileAvatar(url: p.profile.picture);
+            } else if (p.profile.name.isNotEmpty) {
+              return ProfileAvatar(name: p.profile.name);
+            }
+          }
+          return ProfileAvatar(name: e.pubkey);
+        },
       ),
       dense: false,
       title: Stack(

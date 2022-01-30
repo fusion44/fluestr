@@ -1,5 +1,3 @@
-import 'common/models/relay.dart';
-import 'common/relay_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -9,12 +7,19 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'common/constants.dart';
 import 'common/models/credentials.dart';
+import 'common/models/relay.dart';
 import 'common/pages/edit_relays_page.dart';
 import 'common/pages/home_page.dart';
 import 'common/pages/onboarding.dart';
 import 'common/pages/splash_page.dart';
+import 'common/contacts_repository.dart';
+import 'common/relay_repository.dart';
+import 'contacts/blocs/contacts/contacts_bloc.dart';
+import 'contacts/pages/search_contact_page.dart';
 
-late final RelayRepository _repo;
+late final RelayRepository _relayRepo;
+late final ContactsRepository _contactsRepo;
+late final ContactsBloc _contactsBloc;
 
 Future<void> main() async {
   await Hive.initFlutter();
@@ -48,8 +53,11 @@ Future<void> main() async {
         path: '/',
         name: 'home',
         builder: (context, state) => RepositoryProvider.value(
-          value: _repo,
-          child: HomePage(),
+          value: _relayRepo,
+          child: BlocProvider.value(
+            value: _contactsBloc,
+            child: HomePage(),
+          ),
         ),
       ),
       GoRoute(
@@ -68,8 +76,16 @@ Future<void> main() async {
         path: '/relays',
         name: 'relays',
         builder: (context, state) => RepositoryProvider.value(
-          value: _repo,
+          value: _relayRepo,
           child: EditRelaysPage(),
+        ),
+      ),
+      GoRoute(
+        path: '/search-contact',
+        name: 'search-contact',
+        builder: (context, state) => RepositoryProvider.value(
+          value: _relayRepo,
+          child: SearchContactPage(),
         ),
       )
     ],
@@ -77,14 +93,17 @@ Future<void> main() async {
         Scaffold(body: Center(child: Text(state.error.toString()))),
   );
 
-  await _initRepo();
+  await _initRepo(box);
 
   runApp(MyApp(_router));
 }
 
-Future<void> _initRepo() async {
-  _repo = RelayRepository();
-  await _repo.init();
+Future<void> _initRepo(Box box) async {
+  _relayRepo = RelayRepository();
+  await _relayRepo.init();
+
+  _contactsRepo = ContactsRepository(_relayRepo);
+  _contactsBloc = ContactsBloc(_contactsRepo);
 }
 
 class MyApp extends StatelessWidget {

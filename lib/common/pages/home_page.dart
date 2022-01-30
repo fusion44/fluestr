@@ -1,6 +1,8 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import '../../contacts/pages/contacts_page.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../feed/feed_page.dart';
 import '../../messages/messages_page.dart';
@@ -54,13 +56,19 @@ class _HomePageState extends State<HomePage>
     } else if (_bottomNavIndex == 1) {
       child = MessagesPage();
     } else if (_bottomNavIndex == 2) {
-      child = Center(child: Text('contacts'));
+      child = ContactsPage();
     } else {
       child = SettingsPage();
     }
 
     return Scaffold(
       body: child,
+      floatingActionButton: _bottomNavIndex == 2
+          ? FloatingActionButton(
+              child: Icon(Icons.search),
+              onPressed: () => context.pushNamed('search-contact'),
+            )
+          : null,
       bottomNavigationBar: AnimatedBottomNavigationBar(
         icons: iconList,
         activeIndex: _bottomNavIndex,

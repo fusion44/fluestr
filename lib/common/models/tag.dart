@@ -1,15 +1,82 @@
-class Tag {
-  final String type;
+import 'package:flutter/material.dart';
+
+enum TagType { event, profile, unknown }
+
+String _tagTypeAbbrev(TagType tt) {
+  switch (tt) {
+    case TagType.event:
+      return 'e';
+    case TagType.profile:
+      return 'p';
+    default:
+      return '';
+  }
+}
+
+abstract class Tag {
+  final TagType type;
+
+  Tag(this.type);
+
+  factory Tag.fromJson(List<dynamic> json) {
+    if (json.isNotEmpty) {
+      if (json[0] == 'e') {
+        return EventTag.fromJson(json);
+      } else if (json[0] == 'p') {
+        return ProfileTag.fromJson(json);
+      } else {
+        debugPrint('Unknown tag type: $json');
+        return UnknownTag();
+      }
+    } else {
+      throw StateError('Invalid JSON: $json');
+    }
+  }
+
+  List<dynamic> toJson() => [_tagTypeAbbrev(type)];
+}
+
+class EventTag extends Tag {
   final String eventId;
-  final String? content;
+  final String recommendedRelayUrl;
 
-  Tag(this.type, this.eventId, this.content);
+  EventTag({
+    required this.eventId,
+    this.recommendedRelayUrl = '',
+  }) : super(TagType.event);
 
-  static Tag fromJson(v) => Tag(v[0], v[1], v.length > 2 ? v[2] : '');
+  EventTag.fromJson(List<dynamic> v)
+      : eventId = v[1],
+        recommendedRelayUrl = v.length > 2 ? v[2] : '',
+        super(TagType.event);
 
-  Map<String, String> toJson() => {
-        'type': type,
-        'event_id': eventId,
-        'content': content ?? '',
-      };
+  @override
+  List<dynamic> toJson() =>
+      [_tagTypeAbbrev(type), eventId, recommendedRelayUrl];
+}
+
+class ProfileTag extends Tag {
+  final String profileId;
+  final String recommendedRelayUrl;
+  final String petName;
+
+  ProfileTag({
+    required this.profileId,
+    this.recommendedRelayUrl = '',
+    this.petName = '',
+  }) : super(TagType.profile);
+
+  ProfileTag.fromJson(List v)
+      : profileId = v[1],
+        recommendedRelayUrl = v.length > 2 ? v[2] : '',
+        petName = v.length > 3 ? v[3] : '',
+        super(TagType.profile);
+
+  @override
+  List<dynamic> toJson() =>
+      [_tagTypeAbbrev(type), profileId, recommendedRelayUrl, petName];
+}
+
+class UnknownTag extends Tag {
+  UnknownTag() : super(TagType.unknown);
 }

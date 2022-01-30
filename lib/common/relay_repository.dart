@@ -49,20 +49,8 @@ class RelayRepository {
   }
 
   Future<void> init() async {
-    _eventStream = _eventStreamController.stream.asBroadcastStream(
-      onListen: (sub) {
-        for (var e in _events) {
-          _eventStreamController.sink.add(e);
-        }
-      },
-    );
-    _noticeStream = _noticeStreamController.stream.asBroadcastStream(
-      onListen: (sub) {
-        for (var n in _notices) {
-          _noticeStreamController.sink.add(n);
-        }
-      },
-    );
+    _eventStream = _eventStreamController.stream.asBroadcastStream();
+    _noticeStream = _noticeStreamController.stream.asBroadcastStream();
 
     _box = await Hive.openBox(prefBoxNameSettings);
     final rs = _box.get(prefRelayUrls, defaultValue: <Relay>[]);

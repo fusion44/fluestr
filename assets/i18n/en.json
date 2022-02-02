@@ -20,6 +20,11 @@
     "enter_peer_pubkey": "Pubkey",
     "info": "Chat"
   },
+  "contacts": {
+    "search_action": "Search",
+    "search_contacts_title": "Search Contact",   "search_display_profile_header": "Contact",
+    "search_preview_posts": "Posts"
+  },
   "network": {
     "loading": "loading",
     "not_yet_established": "Connection not yet established"

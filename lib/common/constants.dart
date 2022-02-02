@@ -47,6 +47,8 @@ const themeLight = 'light';
 
 const double defaultHorizontalWhiteSpace = 4.0;
 
+const fluestrMainChannel = 0;
+
 // Background processing
 class LocalNotificationChannels {
   static String chatChannelID = 'fluestr_chat';

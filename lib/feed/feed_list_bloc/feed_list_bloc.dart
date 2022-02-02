@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import '../../common/constants.dart';
 import '../../common/models/event.dart';
 import '../../common/relay_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,13 +30,21 @@ class FeedListBloc extends Bloc<FeedListBaseEvent, FeedListState> {
     });
 
     on<_UpdateState>((event, emit) {
-      emit(FeedListLoaded([...event.events]));
+      emit(
+        FeedListLoaded([
+          ...event.events
+              .where((element) => element.channel == fluestrMainChannel)
+        ]),
+      );
     });
+
     if (_repo.events.isNotEmpty) {
       add(_UpdateState(_repo.events));
     }
 
-    _sub = _repo.eventsSub.listen((event) {
+    _sub = _repo.eventsSub
+        .where((event) => event.channel == fluestrMainChannel)
+        .listen((event) {
       if (state is FeedListLoaded) {
         final s = state as FeedListLoaded;
         if (s.events.contains(event)) return;

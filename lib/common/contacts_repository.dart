@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'constants.dart';
+
 import 'models/event.dart';
 import 'dart:async';
 
@@ -27,7 +29,7 @@ class ContactsRepository {
     }
 
     _sub = _relayRepo.eventsSub.where((event) {
-      return event.kind == 0;
+      return event.kind == 0 && event.channel == fluestrMainChannel;
     }).listen((event) {
       _handleProfileEvent(event);
     });

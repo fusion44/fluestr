@@ -22,8 +22,9 @@
   },
   "contacts": {
     "search_action": "Search",
-    "search_contacts_title": "Search Contact",   "search_display_profile_header": "Contact",
-    "search_preview_posts": "Posts"
+    "search_contacts_title": "Search Contact",
+    "search_display_profile_header": "Contact Profile",
+    "search_preview_posts": "Recent Posts"
   },
   "network": {
     "loading": "loading",

@@ -7,14 +7,20 @@ abstract class ContactEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class FollowContact extends ContactEvent {
+  final Contact contact;
+
+  const FollowContact(this.contact);
+}
+
 class _UpdateAllContacts extends ContactEvent {
   final Map<String, Contact> contacts;
 
-  _UpdateAllContacts(this.contacts);
+  const _UpdateAllContacts(this.contacts);
 }
 
 class _UpdateContact extends ContactEvent {
   final Contact contact;
 
-  _UpdateContact(this.contact);
+  const _UpdateContact(this.contact);
 }

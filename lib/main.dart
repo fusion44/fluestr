@@ -6,13 +6,15 @@ import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'common/constants.dart';
+import 'common/contacts_repository.dart';
+import 'common/models/contact.dart';
 import 'common/models/credentials.dart';
+import 'common/models/profile.dart';
 import 'common/models/relay.dart';
 import 'common/pages/edit_relays_page.dart';
 import 'common/pages/home_page.dart';
 import 'common/pages/onboarding.dart';
 import 'common/pages/splash_page.dart';
-import 'common/contacts_repository.dart';
 import 'common/relay_repository.dart';
 import 'contacts/blocs/contacts/contacts_bloc.dart';
 import 'contacts/pages/search_contact_page.dart';
@@ -83,9 +85,12 @@ Future<void> main() async {
       GoRoute(
         path: '/search-contact',
         name: 'search-contact',
-        builder: (context, state) => RepositoryProvider.value(
-          value: _relayRepo,
-          child: SearchContactPage(),
+        builder: (context, state) => BlocProvider(
+          create: (context) => _contactsBloc,
+          child: RepositoryProvider.value(
+            value: _relayRepo,
+            child: SearchContactPage(),
+          ),
         ),
       )
     ],
@@ -93,16 +98,16 @@ Future<void> main() async {
         Scaffold(body: Center(child: Text(state.error.toString()))),
   );
 
-  await _initRepo(box);
+  await _initRepo();
 
   runApp(MyApp(_router));
 }
 
-Future<void> _initRepo(Box box) async {
+Future<void> _initRepo() async {
   _relayRepo = RelayRepository();
   await _relayRepo.init();
-
   _contactsRepo = ContactsRepository(_relayRepo);
+  await _contactsRepo.init();
   _contactsBloc = ContactsBloc(_contactsRepo);
 }
 
@@ -154,6 +159,8 @@ class MyApp extends StatelessWidget {
 }
 
 void _registerHiveAdapters() {
+  Hive.registerAdapter(ContactAdapter());
   Hive.registerAdapter(CredentialsAdapter());
+  Hive.registerAdapter(ProfileAdapter());
   Hive.registerAdapter(RelayAdapter());
 }

@@ -1,14 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:hive_flutter/hive_flutter.dart';
+
 import 'constants.dart';
-
-import 'models/event.dart';
-import 'dart:async';
-
-import 'relay_repository.dart';
-
 import 'models/contact.dart';
+import 'models/event.dart';
 import 'models/profile.dart';
+import 'models/subscription_filter.dart';
+import 'relay_repository.dart';
 
 class ContactsRepository {
   final RelayRepository _relayRepo;
@@ -16,6 +16,31 @@ class ContactsRepository {
   late final Stream<Contact> _contactsStream;
   final Map<String, Contact> _contacts = {};
   late final StreamSubscription<Event> _sub;
+
+  Future<void> init() async {
+    final box = await Hive.openBox(prefBoxNameSettings);
+
+    List<Contact> contacts = box.get(
+      prefFollowedContacts,
+      defaultValue: <Contact>[],
+    ).cast<Contact>();
+
+    for (final c in contacts) {
+      _contacts[c.pubkey] = c;
+    }
+
+    if (contacts.isNotEmpty) {
+      final f = SubscriptionFilter(
+        authors:
+            contacts.where((e) => e.following).map((e) => e.pubkey).toList(),
+        eventKinds: [0, 1, 2],
+      );
+
+      _relayRepo.trySendRaw(
+        jsonEncode(['REQ', fluestrMainChannel.toString(), f.toJson()]),
+      );
+    }
+  }
 
   void dispose() async {
     await _sub.cancel();
@@ -41,6 +66,15 @@ class ContactsRepository {
   /// Subscribe to new or updated [Contact] objects.
   /// Use [contacts] to get all [Profiles] objects received in the past.
   Stream<Contact> get contactsStream => _contactsStream;
+
+  void followContact(Contact c) async {
+    final box = await Hive.openBox(prefBoxNameSettings);
+    final newContact = c.copyWith(following: true);
+
+    _contacts[c.pubkey] = newContact;
+    _contactsStreamController.sink.add(newContact);
+    await box.put(prefFollowedContacts, _contacts.values.toList());
+  }
 
   void _handleProfileEvent(Event event) {
     final p = Profile.fromJson(jsonDecode(event.content));

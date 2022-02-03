@@ -14,6 +14,7 @@ const String prefPinActive = 'pin_active';
 const String prefPin = 'pin_string';
 const String prefCredentials = 'pref_credentials';
 const String prefRelayUrls = 'pref_relay_urls';
+const String prefFollowedContacts = 'pref_followed_contacts';
 
 // Routes
 const String routeSplash = '/';

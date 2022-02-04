@@ -37,20 +37,23 @@ class _FeedPageState extends State<FeedPage> {
         if (state is FeedListInitial) {
           return _buildLoadingUI();
         } else if (state is FeedListLoaded) {
-          return ListView.separated(
-            separatorBuilder: (context, index) {
-              // TODO: improve the FeedListBloc to avoid this inefficiency
-              final e = state.events.reversed.toList()[index];
-              if (e.kind == 1) return Divider();
-              return Container();
-            },
-            itemCount: state.events.length,
-            itemBuilder: (context, index) {
-              // TODO: improve the FeedListBloc to avoid this inefficiency
-              final e = state.events.reversed.toList()[index];
-              if (e.kind == 1) return TextEvent(e);
-              return Container();
-            },
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView.separated(
+              separatorBuilder: (context, index) {
+                // TODO: improve the FeedListBloc to avoid this inefficiency
+                final e = state.events.reversed.toList()[index];
+                if (e.kind == 1) return Divider();
+                return Container();
+              },
+              itemCount: state.events.length,
+              itemBuilder: (context, index) {
+                // TODO: improve the FeedListBloc to avoid this inefficiency
+                final e = state.events.reversed.toList()[index];
+                if (e.kind == 1) return TextEvent(e);
+                return Container();
+              },
+            ),
           );
         }
         return Text('Unknown State $state');

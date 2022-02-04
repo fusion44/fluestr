@@ -52,7 +52,7 @@ class TextEvent extends StatelessWidget {
           children: [
             SizedBox(width: 4.0),
             _buildAvatar(con),
-            SizedBox(width: 8.0),
+            SizedBox(width: 12.0),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -64,6 +64,7 @@ class TextEvent extends StatelessWidget {
                       _buildDate(theme, _event.createdAtDt),
                     ],
                   ),
+                  SizedBox(height: 8.0),
                   MarkdownBody(
                     data: _event.content,
                     selectable: kIsWeb ? true : false,
@@ -85,13 +86,19 @@ class TextEvent extends StatelessWidget {
     }
 
     return Expanded(
-      child: Text(
-        name +
-            ' (' +
-            _event.pubkey.replaceRange(3, _event.pubkey.length - 4, '...') +
-            ')',
-        style: theme.textTheme.caption,
-        overflow: TextOverflow.ellipsis,
+      child: Tooltip(
+        message: _event.pubkey,
+        child: Text(
+          name +
+              ' (' +
+              _event.pubkey.replaceRange(3, _event.pubkey.length - 4, '...') +
+              ')',
+          style: theme.textTheme.labelLarge!.copyWith(
+            color: Colors.blueGrey[200],
+            fontWeight: FontWeight.bold,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
     );
   }
@@ -109,7 +116,7 @@ class TextEvent extends StatelessWidget {
   Widget _buildDate(ThemeData theme, DateTime createdAtDt) {
     return Text(
       timeago.format(createdAtDt),
-      style: theme.textTheme.caption,
+      style: theme.textTheme.caption!.copyWith(fontWeight: FontWeight.bold),
       textAlign: TextAlign.right,
     );
   }

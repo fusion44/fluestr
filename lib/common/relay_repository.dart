@@ -58,7 +58,7 @@ class RelayRepository {
 
     if (_relays.isEmpty) {
       _relays.addAll(getStandardRelays());
-      _storeRelays();
+      await _storeRelays();
     }
 
     for (final r in _relays) {
@@ -66,28 +66,28 @@ class RelayRepository {
     }
   }
 
-  void toggleRelayActiveState(Relay r) {
+  Future<void> toggleRelayActiveState(Relay r) async {
     if (!_relays.contains(r)) throw StateError('Relay not registered');
 
-    removeRelay(r);
-    addRelay(r.copyWith(active: !r.active));
+    await removeRelay(r);
+    await addRelay(r.copyWith(active: !r.active));
   }
 
-  void toggleRelayWriteState(Relay r) {
+  Future<void> toggleRelayWriteState(Relay r) async {
     if (!_relays.contains(r)) throw StateError('Relay not registered');
 
-    removeRelay(r);
-    addRelay(r.copyWith(write: !r.write));
+    await removeRelay(r);
+    await addRelay(r.copyWith(write: !r.write));
   }
 
-  void toggleRelayReadState(Relay r) {
+  Future<void> toggleRelayReadState(Relay r) async {
     if (!_relays.contains(r)) throw StateError('Relay not registered');
 
-    removeRelay(r);
-    addRelay(r.copyWith(read: !r.read));
+    await removeRelay(r);
+    await addRelay(r.copyWith(read: !r.read));
   }
 
-  void addRelay(Relay r) {
+  Future<void> addRelay(Relay r) async {
     _relays.add(r);
     if (r.active) _connectRelay(r);
 
@@ -95,19 +95,18 @@ class RelayRepository {
       return a.url.compareTo(b.url);
     });
 
-    _storeRelays();
+    await _storeRelays();
   }
 
-  void removeRelay(dynamic r) {
+  Future<void> removeRelay(dynamic r) async {
     if (r is Relay) {
       _relays.remove(r);
-      _disconnectRelay(r);
-      return;
+      await _disconnectRelay(r);
     } else if (r is String) {
       try {
         Uri.parse(r);
         final relay = _relays.firstWhere((Relay element) => r == element.url);
-        _disconnectRelay(relay);
+        await _disconnectRelay(relay);
         _relays.remove(relay);
       } catch (e) {
         debugPrint('Error while parsing the Uri: $r');
@@ -117,7 +116,7 @@ class RelayRepository {
         'Argument must either be a Relay instance or a String containing the valid Relay url',
       );
     }
-    _storeRelays();
+    await _storeRelays();
   }
 
   void trySend(Event e) {
@@ -146,7 +145,7 @@ class RelayRepository {
     _subs[r] = sub;
   }
 
-  void _disconnectRelay(Relay r) async {
+  Future<void> _disconnectRelay(Relay r) async {
     if (r.active && _subs.containsKey(r)) {
       debugPrint('Disconnecting from ${r.url}');
       _channels.remove(r);
@@ -191,7 +190,7 @@ class RelayRepository {
     });
   }
 
-  void _storeRelays() async {
+  Future<void> _storeRelays() async {
     await _box.put(prefRelayUrls, _relays);
   }
 }

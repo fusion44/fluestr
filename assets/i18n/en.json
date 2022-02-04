@@ -1,9 +1,11 @@
 {
   "alert_dialog": {
+    "add": "Add",
     "cancel": "Cancel",
     "clear": "Clear",
     "confirm": "Confirm",
-    "confirm_action_title": "Confirm Action"
+    "confirm_action_title": "Confirm Action",
+    "websocket_url": "Websocket URL"
   },
   "amount": "amount",
   "auth": {

@@ -11,7 +11,7 @@ import 'common/models/contact.dart';
 import 'common/models/credentials.dart';
 import 'common/models/profile.dart';
 import 'common/models/relay.dart';
-import 'common/pages/edit_relays_page.dart';
+import 'settings/edit_relays_page.dart';
 import 'common/pages/home_page.dart';
 import 'common/pages/onboarding.dart';
 import 'common/pages/splash_page.dart';

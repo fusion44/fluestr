@@ -1,9 +1,10 @@
+import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 part 'relay.g.dart';
 
 @HiveType(typeId: 2)
-class Relay {
+class Relay extends Equatable {
   @HiveField(0)
   final String url;
 
@@ -42,4 +43,7 @@ class Relay {
   static List<Relay> fromJsonList(Map<String, dynamic> json) {
     return [for (final k in json.keys) Relay.fromJson(k, json[k])];
   }
+
+  @override
+  List<Object?> get props => [url, read, write, active];
 }

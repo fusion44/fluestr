@@ -5,6 +5,10 @@ import '../../contacts/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:flutter/foundation.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+
+import 'code_element_builder.dart';
 
 class TextEvent extends StatelessWidget {
   final Event _event;
@@ -60,7 +64,11 @@ class TextEvent extends StatelessWidget {
                       _buildDate(theme, _event.createdAtDt),
                     ],
                   ),
-                  Text(_event.content),
+                  MarkdownBody(
+                    data: _event.content,
+                    selectable: kIsWeb ? true : false,
+                    builders: {'code': CodeElementBuilder()},
+                  ),
                 ],
               ),
             )

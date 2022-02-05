@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import '../common/constants.dart';
+import '../common/widgets/widgets.dart';
 
 class MessagesPage extends StatefulWidget {
   static final Widget fabIcon = Icon(Icons.add);
@@ -26,10 +25,6 @@ class _MessagesPageState extends State<MessagesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildLoadingUI();
-  }
-
-  Widget _buildLoadingUI() {
-    return Center(child: SpinKitRipple(color: fluestrBlue200, size: 150));
+    return NotImplementedError();
   }
 }

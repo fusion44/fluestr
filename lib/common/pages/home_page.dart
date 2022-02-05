@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage>
     }
 
     return Scaffold(
-      body: child,
+      body: SafeArea(child: child),
       floatingActionButton: _bottomNavIndex == 2
           ? FloatingActionButton(
               child: Icon(Icons.search),

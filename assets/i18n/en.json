@@ -32,7 +32,7 @@
     "loading": "loading",
     "not_yet_established": "Connection not yet established"
   },
-  "not_implemented_yet": "Not implemented yet",
+  "not_implemented_yet": "Not implemented, yet",
   "onboarding": {
     "generate_seed": "Generate",
     "help_text_enter_mnemonic_or_seed": "Enter your mnemonic or generate one",

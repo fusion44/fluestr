@@ -22,6 +22,11 @@
     "enter_peer_pubkey": "Pubkey",
     "info": "Chat"
   },
+  "compose_message": {
+    "markdown_message_short": "MD Message",
+    "markdown_preview_short": "MD Preview",
+    "text_message_short": "Text Message"
+  },
   "contacts": {
     "search_action": "Search",
     "search_contacts_title": "Search Contact",

@@ -11,6 +11,7 @@ import 'common/models/contact.dart';
 import 'common/models/credentials.dart';
 import 'common/models/profile.dart';
 import 'common/models/relay.dart';
+import 'feed/compose_markdown_message_page.dart';
 import 'settings/edit_relays_page.dart';
 import 'common/pages/home_page.dart';
 import 'common/pages/onboarding.dart';
@@ -90,6 +91,17 @@ Future<void> main() async {
           child: RepositoryProvider.value(
             value: _relayRepo,
             child: SearchContactPage(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/compose-message',
+        name: 'compose-message',
+        builder: (context, state) => BlocProvider.value(
+          value: _contactsBloc,
+          child: RepositoryProvider.value(
+            value: _relayRepo,
+            child: ComposeMarkdownMessagePage(),
           ),
         ),
       )

@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:hex/hex.dart';
 
 import '../../utils.dart';
+import 'credentials.dart';
 import 'tag.dart';
 
 class Event extends Equatable {
@@ -13,7 +14,6 @@ class Event extends Equatable {
   final String relay;
   final String id;
   final String pubkey;
-  final int createdAt;
   final DateTime createdAtDt;
   final int kind;
   final List<Tag> tags;
@@ -21,17 +21,18 @@ class Event extends Equatable {
   final String sig;
   final bool verified;
 
+  int get createdAt => DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
   Event({
-    required this.channel,
-    this.relay = '',
-    required this.id,
     required this.pubkey,
-    required this.createdAt,
     required this.createdAtDt,
     required this.kind,
-    required this.tags,
-    required this.content,
-    required this.sig,
+    this.channel = 0,
+    this.relay = '',
+    this.id = '',
+    this.tags = const [],
+    this.content = '',
+    this.sig = '',
     this.verified = false,
   });
 
@@ -40,7 +41,6 @@ class Event extends Equatable {
         relay = '',
         id = '',
         pubkey = '',
-        createdAt = DateTime.now().millisecond,
         createdAtDt = DateTime.now(),
         kind = -1,
         tags = const [],
@@ -48,12 +48,27 @@ class Event extends Equatable {
         sig = '',
         verified = false;
 
+  static Future<Event> kind1(
+    Credentials creds,
+    String content, {
+    List<EventTag> tags = const [],
+    DateTime? createdAt,
+  }) async {
+    final e = Event(
+      pubkey: creds.pubKey,
+      tags: tags,
+      createdAtDt: createdAt ?? DateTime.now(),
+      kind: 1,
+      content: content,
+    );
+    return await e.signWith(creds.privKey);
+  }
+
   /// Event to publish a the a contact list to relays
   /// https://github.com/fiatjaf/nostr/blob/master/nips/02.md
   Event.kind3(String pubKey, List<ProfileTag> tags)
       : pubkey = pubKey,
         tags = tags,
-        createdAt = DateTime.now().millisecondsSinceEpoch ~/ 1000,
         createdAtDt = DateTime.now(),
         id = '',
         kind = 3,
@@ -93,7 +108,6 @@ class Event extends Equatable {
       relay: relay,
       id: json['id'],
       pubkey: json['pubkey'],
-      createdAt: json['created_at'],
       createdAtDt:
           DateTime.fromMillisecondsSinceEpoch(json['created_at'] * 1000),
       kind: json['kind'],
@@ -120,7 +134,6 @@ class Event extends Equatable {
       relay: relay ?? this.relay,
       id: id ?? this.id,
       pubkey: pubkey ?? this.pubkey,
-      createdAt: createdAt ?? this.createdAt,
       createdAtDt: createdAt != null
           ? DateTime.fromMillisecondsSinceEpoch(createdAt * 1000)
           : createdAtDt,
@@ -151,8 +164,7 @@ class Event extends Equatable {
   Future<Event> signWith(String key) async {
     final eventHash = await _hashHEX();
     final sig = bip340.sign(key, eventHash, HEX.encode(randomBytes32()));
-    // final sig = bip340.sign(key, eventHash, HEX.encode(_notSoRandomByteList()));
-    return copyWith(id: eventHash, sig: sig);
+    return copyWith(id: eventHash, sig: sig, verified: await verify());
   }
 
   Future<bool> verify() async {

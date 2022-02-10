@@ -36,8 +36,8 @@ dependencies:
   settings_ui: ^2.0.2
   flutter_markdown: ^0.6.9
   flutter_highlighter: ^0.1.1
+  material_design_icons_flutter: ^5.0.6595
   
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

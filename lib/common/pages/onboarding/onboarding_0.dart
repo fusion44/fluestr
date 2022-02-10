@@ -150,7 +150,7 @@ class _OnboardingPage0State extends State<OnboardingPage0> {
       widget.onFinish(await _genKeysFromMnemonic());
     } else {
       final pubKey = bip340.getPublicKey(_inputCtrl.text);
-      widget.onFinish(Credentials('', _inputCtrl.text, pubKey));
+      widget.onFinish(Credentials('', pubKey, _inputCtrl.text));
     }
   }
 

@@ -34,6 +34,10 @@
     "search_display_profile_header": "Contact Profile",
     "search_preview_posts": "Recent Posts"
   },
+  "feed": {
+    "feed_list_empty1": "Feed is empty.",
+    "feed_list_empty2": "Your contacts haven't posted anything to your connected relays."
+  },
   "network": {
     "loading": "loading",
     "not_yet_established": "Connection not yet established"

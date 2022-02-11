@@ -28,6 +28,7 @@
     "text_message_short": "Text Message"
   },
   "contacts": {
+    "contact_list_empty": "No contacts, use search to add some",
     "search_action": "Search",
     "search_contacts_title": "Search Contact",
     "search_display_profile_header": "Contact Profile",

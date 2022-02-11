@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage>
     } else if (_bottomNavIndex == 1) {
       child = MessagesPage();
     } else if (_bottomNavIndex == 2) {
-      child = ContactsPage();
+      child = ContactsPage(() => context.pushNamed('search-contact'));
       fab = FloatingActionButton(
         child: Icon(Icons.search),
         onPressed: () => context.pushNamed('search-contact'),

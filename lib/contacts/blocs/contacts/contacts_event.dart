@@ -24,3 +24,5 @@ class _UpdateContact extends ContactEvent {
 
   const _UpdateContact(this.contact);
 }
+
+class _NoContacts extends ContactEvent {}

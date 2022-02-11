@@ -16,6 +16,9 @@ class ContactsRepository {
   late final Stream<Contact> _contactsStream;
   final Map<String, Contact> _contacts = {};
   late final StreamSubscription<Event> _sub;
+  bool _initialized = false;
+
+  bool get initialized => _initialized;
 
   Future<void> init() async {
     final box = await Hive.openBox(prefBoxNameSettings);
@@ -40,6 +43,7 @@ class ContactsRepository {
         jsonEncode(['REQ', fluestrMainChannel.toString(), f.toJson()]),
       );
     }
+    _initialized = true;
   }
 
   void dispose() async {

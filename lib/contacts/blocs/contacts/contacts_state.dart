@@ -9,6 +9,8 @@ abstract class ContactsState extends Equatable {
 
 class ContactsInitial extends ContactsState {}
 
+class ContactsListEmpty extends ContactsState {}
+
 class ContactsUpdate extends ContactsState {
   final Map<String, Contact> contacts;
 

@@ -37,5 +37,11 @@ class ContactsBloc extends Bloc<ContactEvent, ContactsState> {
         emit(ContactsUpdate({event.contact.pubkey: event.contact}));
       }
     });
+
+    on<_NoContacts>(((event, emit) => emit(ContactsListEmpty())));
+
+    if (_contactsRepo.initialized && _contactsRepo.contacts.isEmpty) {
+      add(_NoContacts());
+    }
   }
 }

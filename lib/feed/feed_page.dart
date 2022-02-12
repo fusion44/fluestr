@@ -5,7 +5,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../common/constants.dart';
 import '../common/widgets/text_event.dart';
 import '../contacts/blocs/contacts/contacts_bloc.dart';
-import '../contacts/widgets/widgets.dart';
 import 'feed_list_bloc/feed_list_bloc.dart';
 import 'widgets/widgets.dart';
 
@@ -46,7 +45,7 @@ class _FeedPageState extends State<FeedPage> {
     // that we'd have received something from a relay to show to the user.
     // If not we'll show a message to the user.
     await Future.delayed(Duration(seconds: 2));
-    if (!_loadingTimeOver) setState(() => _loadingTimeOver = true);
+    if (mounted && !_loadingTimeOver) setState(() => _loadingTimeOver = true);
   }
 
   @override
@@ -59,14 +58,14 @@ class _FeedPageState extends State<FeedPage> {
     return BlocBuilder<ContactsBloc, ContactsState>(
       builder: (context, state) {
         if (state is ContactsInitial || state is ContactsListEmpty) {
-          return ContactListEmpty();
+          return _buildEventListEmptyWidget();
         }
-        return _buildFeedBloc(state);
+        return _buildFeedBloc();
       },
     );
   }
 
-  Widget _buildFeedBloc(ContactsState cstate) {
+  Widget _buildFeedBloc() {
     return BlocBuilder(
       bloc: _bloc,
       builder: (context, state) {

@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+
+import '../utils.dart';
 import 'constants.dart';
 import 'models/event.dart';
 import 'models/relay.dart';
-import 'package:flutter/foundation.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-
-import '../utils.dart';
+import 'models/tag.dart';
 
 class RelayRepository {
   final List<Relay> _relays = [];
@@ -17,7 +18,7 @@ class RelayRepository {
 
   final _eventStreamController = StreamController<Event>();
   late final Stream<Event> _eventStream;
-  final List<Event> _events = [];
+  final Map<String, Event> _eventMap = {};
 
   final _noticeStreamController = StreamController<String>();
   late final Stream<String> _noticeStream;
@@ -33,8 +34,10 @@ class RelayRepository {
   /// Use [notices] to get all notices received in the past.
   Stream<String> get noticeSub => _noticeStream;
 
-  /// Get all events up to this point in time
-  List<Event> get events => _events;
+  List<Event> get events => _eventMap.values.toList();
+
+  /// Get all events up to this point in time (Map<String, Event>)
+  Map<String, Event> get eventMap => _eventMap;
 
   /// Get all notices up to this point in time
   List<String> get notices => _notices;
@@ -178,13 +181,37 @@ class RelayRepository {
           final evt = Event.fromJson(data[2], channel: channel ?? 0);
           final verified = await evt.verify();
 
+          final taggedEvents = evt.tags.whereType<EventTag>().toList();
+          for (var t in taggedEvents) {
+            if (_eventMap.containsKey(t.eventId) &&
+                _eventMap[t.eventId] != null) {
+              // We have a new event that is a reply to an existing old event,
+              // Events might be loaded multiple times, so we must check if
+              // the child is already registered
+              if (!_eventMap[t.eventId]!.hasChild(evt)) {
+                final updatedOldEvent =
+                    _eventMap[t.eventId]!.copyWith(child: evt);
+
+                // Update the event map with the updated object
+                _eventMap[t.eventId] = updatedOldEvent;
+
+                // Notify client that there are updates
+                _eventStreamController.sink.add(updatedOldEvent);
+              }
+              // Add the parent object to the new event
+              evt.parents.add(_eventMap[t.eventId]!);
+            }
+          }
+
           if (!verified) {
             _eventStreamController.sink.addError(
               'Received unverifiable Event: ${evt.toJsonString()}',
             );
           }
-          _eventStreamController.sink.add(evt.copyWith(verified: verified));
-          _events.add(evt);
+
+          final evt2 = evt.copyWith(verified: verified);
+          _eventStreamController.sink.add(evt2);
+          _eventMap[evt.id] = evt2;
         }
       }
     });

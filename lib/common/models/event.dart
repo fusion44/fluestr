@@ -20,6 +20,14 @@ class Event extends Equatable {
   final String content;
   final String sig;
   final bool verified;
+  final List<Event> _parents = [];
+  final List<Event> _children = [];
+
+  int get numParents => _parents.length;
+  int get numChildren => _children.length;
+
+  List<Event> get parents => _parents;
+  List<Event> get children => _children;
 
   int get createdAt => DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
@@ -34,7 +42,12 @@ class Event extends Equatable {
     this.content = '',
     this.sig = '',
     this.verified = false,
-  });
+    List<Event>? parents,
+    List<Event>? children,
+  }) {
+    if (parents != null && parents.isNotEmpty) _parents.addAll(parents);
+    if (children != null && children.isNotEmpty) _children.addAll(children);
+  }
 
   Event.empty()
       : channel = 0,
@@ -89,6 +102,8 @@ class Event extends Equatable {
         ...tags,
         content,
         sig,
+        ...parents,
+        ...children,
       ];
 
   static Event fromJson(
@@ -97,24 +112,38 @@ class Event extends Equatable {
     int channel = 0,
   }) {
     final tags = <Tag>[];
-    if (json['tags'] != null) {
+    if (json['tags'] != null && json['tags'].isNotEmpty) {
       json['tags'].forEach((v) {
         tags.add(Tag.fromJson(v));
       });
     }
 
     return Event(
-      channel: channel,
-      relay: relay,
-      id: json['id'],
-      pubkey: json['pubkey'],
-      createdAtDt:
-          DateTime.fromMillisecondsSinceEpoch(json['created_at'] * 1000),
-      kind: json['kind'],
-      tags: tags,
-      content: json['content'],
-      sig: json['sig'],
-    );
+        channel: channel,
+        relay: relay,
+        id: json['id'],
+        pubkey: json['pubkey'],
+        createdAtDt:
+            DateTime.fromMillisecondsSinceEpoch(json['created_at'] * 1000),
+        kind: json['kind'],
+        tags: tags,
+        content: json['content'],
+        sig: json['sig']);
+  }
+
+  bool hasChild(Event a) {
+    for (var b in _children) {
+      if (a.id == b.id) return true;
+    }
+
+    return false;
+  }
+
+  bool hasParent(Event a) {
+    for (var b in _children) {
+      if (a.id == b.id) return true;
+    }
+    return false;
   }
 
   Event copyWith({
@@ -128,6 +157,8 @@ class Event extends Equatable {
     String? content,
     String? sig,
     bool? verified,
+    Event? parent,
+    Event? child,
   }) {
     return Event(
       channel: channel ?? this.channel,
@@ -142,6 +173,8 @@ class Event extends Equatable {
       content: content ?? this.content,
       sig: sig ?? this.sig,
       verified: verified ?? this.verified,
+      parents: parent != null ? [...parents, parent] : [...parents],
+      children: child != null ? [...children, child] : [...children],
     );
   }
 

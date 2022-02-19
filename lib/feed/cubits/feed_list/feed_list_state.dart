@@ -1,7 +1,8 @@
-part of 'feed_list_bloc.dart';
+part of 'feed_list_cubit.dart';
 
-@immutable
 abstract class FeedListState extends Equatable {
+  const FeedListState();
+
   @override
   List<Object> get props => [];
 }
@@ -12,9 +13,6 @@ class FeedListLoaded extends FeedListState {
   final List<Event> events;
 
   FeedListLoaded(this.events);
-
-  FeedListLoaded copyWithNewEvents(List<Event> newEvents) =>
-      FeedListLoaded([...events, ...newEvents]);
 
   @override
   List<Object> get props => [events.length];

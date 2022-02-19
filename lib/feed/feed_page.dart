@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:go_router/go_router.dart';
 
 import '../common/constants.dart';
+import '../common/contacts_repository.dart';
 import '../common/widgets/text_event.dart';
 import '../contacts/blocs/contacts/contacts_bloc.dart';
-import 'feed_list_bloc/feed_list_bloc.dart';
+import 'cubits/feed_list/feed_list_cubit.dart';
 import 'widgets/widgets.dart';
 
 class FeedPage extends StatefulWidget {
@@ -15,13 +17,15 @@ class FeedPage extends StatefulWidget {
 
 class _FeedPageState extends State<FeedPage> {
   final TextEditingController _searchPeerController = TextEditingController();
-  late final FeedListBloc _bloc;
+  late final FeedListCubit _bloc;
   bool _loadingTimeOver = false;
 
   @override
   void initState() {
-    _bloc = FeedListBloc(RepositoryProvider.of(context));
-    BlocListener<FeedListBloc, FeedListState>(
+    var contacts = RepositoryProvider.of<ContactsRepository>(context).contacts;
+    _bloc = FeedListCubit(RepositoryProvider.of(context), contacts);
+
+    BlocListener<FeedListCubit, FeedListState>(
       bloc: _bloc,
       listener: (context, state) {
         if (state is FeedListLoaded) _loadingTimeOver = true;
@@ -82,16 +86,19 @@ class _FeedPageState extends State<FeedPage> {
             padding: const EdgeInsets.all(8.0),
             child: ListView.separated(
               separatorBuilder: (context, index) {
-                // TODO: improve the FeedListBloc to avoid this inefficiency
-                final e = state.events.reversed.toList()[index];
+                final e = state.events[index];
                 if (e.kind == 1) return Divider();
                 return Container();
               },
               itemCount: state.events.length,
               itemBuilder: (context, index) {
-                // TODO: improve the FeedListBloc to avoid this inefficiency
-                final e = state.events.reversed.toList()[index];
-                if (e.kind == 1) return TextEvent(e);
+                final e = state.events[index];
+                if (e.kind == 1) {
+                  return TextEvent(
+                    e,
+                    onTap: (id) => context.push('/event/$id'),
+                  );
+                }
                 return Container();
               },
             ),

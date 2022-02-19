@@ -11,14 +11,15 @@ import 'common/models/contact.dart';
 import 'common/models/credentials.dart';
 import 'common/models/profile.dart';
 import 'common/models/relay.dart';
-import 'feed/compose_markdown_message_page.dart';
-import 'settings/edit_relays_page.dart';
 import 'common/pages/home_page.dart';
 import 'common/pages/onboarding.dart';
 import 'common/pages/splash_page.dart';
 import 'common/relay_repository.dart';
 import 'contacts/blocs/contacts/contacts_bloc.dart';
 import 'contacts/pages/search_contact_page.dart';
+import 'feed/compose_markdown_message_page.dart';
+import 'feed/thread_view_page.dart';
+import 'settings/edit_relays_page.dart';
 
 late final RelayRepository _relayRepo;
 late final ContactsRepository _contactsRepo;
@@ -55,8 +56,11 @@ Future<void> main() async {
       GoRoute(
         path: '/',
         name: 'home',
-        builder: (context, state) => RepositoryProvider.value(
-          value: _relayRepo,
+        builder: (context, state) => MultiRepositoryProvider(
+          providers: [
+            RepositoryProvider.value(value: _contactsRepo),
+            RepositoryProvider.value(value: _relayRepo),
+          ],
           child: BlocProvider.value(
             value: _contactsBloc,
             child: HomePage(),
@@ -102,6 +106,17 @@ Future<void> main() async {
           child: RepositoryProvider.value(
             value: _relayRepo,
             child: ComposeMarkdownMessagePage(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/event/:event_id',
+        name: 'event',
+        builder: (context, state) => BlocProvider.value(
+          value: _contactsBloc,
+          child: RepositoryProvider.value(
+            value: _relayRepo,
+            child: ThreadViewPage(state.params['event_id']),
           ),
         ),
       )

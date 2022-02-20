@@ -27,7 +27,6 @@ String tr(BuildContext context, String key,
 
 List<Relay> getStandardRelays() {
   return [
-    Relay('ws://localhost:2700', true, true, true),
     Relay('wss://nostr.rocks', true, true, false),
     Relay('wss://relayer.fiatjaf.com', true, true, false),
     Relay('wss://nostrrr.bublina.eu.org', true, true, false),

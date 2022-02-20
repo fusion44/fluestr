@@ -4,6 +4,7 @@ help:
 	@echo "generate: Run code generation"
 	@echo "run-linux: Run the linux app (debug)"
 	@echo "run-chrome: Run the chrome app (debug)"
+	@echo "release: Build release binaries"
 	@echo "------------------------------------"
 
 clean:
@@ -21,4 +22,12 @@ run-chrome:
 generate:
 	flutter packages pub run build_runner build --delete-conflicting-outputs
 
+
+release:
+	flutter clean
+	flutter packages get
+	flutter packages pub run build_runner build --delete-conflicting-outputs
+	flutter build web --release --base-href '/fluestr-canvas/'
+	flutter build apk --split-per-abi
+	flutter build linux --release
 

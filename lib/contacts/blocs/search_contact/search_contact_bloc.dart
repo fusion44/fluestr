@@ -24,27 +24,32 @@ class SearchContactBloc
   bool _countDownRunning = false;
 
   SearchContactBloc(this._relayRepository) : super(SearchContactInitial()) {
-    _relayRepository.eventsSub.where((e) {
-      return e.channel == _channel;
-    }).listen((e) {
-      if (e.kind == 0 && _currentSearch == e.pubkey && !_fetchingFeed) {
-        _contact = Contact(
-          pubkey: e.pubkey,
-          profile: Profile.fromJson(jsonDecode(e.content)),
-        );
-        final f = SubscriptionFilter(
-          authors: [e.pubkey],
-          eventKinds: [0, 1, 2],
-        );
+    _relayRepository.eventsSub.map<List<Event>>((events) {
+      return [
+        for (var e in events)
+          if (e.channel == _channel) e
+      ];
+    }).listen((events) {
+      for (var e in events) {
+        if (e.kind == 0 && _currentSearch == e.pubkey && !_fetchingFeed) {
+          _contact = Contact(
+            pubkey: e.pubkey,
+            profile: Profile.fromJson(jsonDecode(e.content)),
+          );
+          final f = SubscriptionFilter(
+            authors: [e.pubkey],
+            eventKinds: [0, 1, 2],
+          );
 
-        _fetchingFeed = true;
-        _relayRepository.trySendRaw(
-          jsonEncode(['REQ', _channel.toString(), f.toJson()]),
-        );
-      } else if (e.kind == 1 && _currentSearch == e.pubkey && _fetchingFeed) {
-        if (_contact == null) throw StateError('Contact must not be null');
-        if (!_countDownRunning) add(_FireCountdown());
-        _events.add(e);
+          _fetchingFeed = true;
+          _relayRepository.trySendRaw(
+            jsonEncode(['REQ', _channel.toString(), f.toJson()]),
+          );
+        } else if (e.kind == 1 && _currentSearch == e.pubkey && _fetchingFeed) {
+          if (_contact == null) throw StateError('Contact must not be null');
+          if (!_countDownRunning) add(_FireCountdown());
+          _events.add(e);
+        }
       }
     });
 

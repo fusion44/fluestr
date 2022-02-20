@@ -15,7 +15,7 @@ class ContactsRepository {
   final _contactsStreamController = StreamController<Contact>();
   late final Stream<Contact> _contactsStream;
   final Map<String, Contact> _contacts = {};
-  late final StreamSubscription<Event> _sub;
+  late final StreamSubscription<List<Event>> _sub;
   bool _initialized = false;
 
   bool get initialized => _initialized;
@@ -53,14 +53,18 @@ class ContactsRepository {
   ContactsRepository(this._relayRepo) {
     _contactsStream = _contactsStreamController.stream.asBroadcastStream();
     final l = _relayRepo.events.where((element) => element.kind == 0);
-    for (var event in l) {
-      _handleProfileEvent(event);
-    }
+    _handleProfileEvents(l);
 
-    _sub = _relayRepo.eventsSub.where((event) {
-      return event.kind == 0 && event.channel == fluestrMainChannel;
-    }).listen((event) {
-      _handleProfileEvent(event);
+    _sub = _relayRepo.eventsSub.map<List<Event>>((events) {
+      final newList = <Event>[];
+      for (var e in events) {
+        if (e.kind == 0 && e.channel == fluestrMainChannel) {
+          newList.add(e);
+        }
+      }
+      return newList;
+    }).listen((events) {
+      _handleProfileEvents(events);
     });
   }
 
@@ -80,15 +84,17 @@ class ContactsRepository {
     await box.put(prefFollowedContacts, _contacts.values.toList());
   }
 
-  void _handleProfileEvent(Event event) {
-    final p = Profile.fromJson(jsonDecode(event.content));
-    var c;
-    if (_contacts.containsKey(event.pubkey)) {
-      c = _contacts[event.pubkey]!.copyWith(profile: p);
-    } else {
-      c = Contact(pubkey: event.pubkey, profile: p);
+  void _handleProfileEvents(Iterable<Event> events) {
+    for (var e in events) {
+      final p = Profile.fromJson(jsonDecode(e.content));
+      var c;
+      if (_contacts.containsKey(e.pubkey)) {
+        c = _contacts[e.pubkey]!.copyWith(profile: p);
+      } else {
+        c = Contact(pubkey: e.pubkey, profile: p);
+      }
+      _contacts[e.pubkey] = c;
+      _contactsStreamController.sink.add(c);
     }
-    _contacts[event.pubkey] = c;
-    _contactsStreamController.sink.add(c);
   }
 }

@@ -16,8 +16,8 @@ class RelayRepository {
   final Map<Relay, WebSocketChannel> _channels = {};
   final Map<Relay, StreamSubscription> _subs = {};
 
-  final _eventStreamController = StreamController<Event>();
-  late final Stream<Event> _eventStream;
+  final _eventStreamController = StreamController<List<Event>>();
+  late final Stream<List<Event>> _eventStream;
   final Map<String, Event> _eventMap = {};
 
   final _noticeStreamController = StreamController<String>();
@@ -26,9 +26,15 @@ class RelayRepository {
 
   late final Box _box;
 
+  // we'll cache incoming events and send them every
+  // x milliseconds to clients to avoid back pressure issues
+  final int _flushTime = 500;
+  var _eventCache = <Event>[];
+  bool _awaitingFlush = false;
+
   /// Subscribe to new [Event] objects.
   /// Use [events] to get all [Event] objects received in the past.
-  Stream<Event> get eventsSub => _eventStream;
+  Stream<List<Event>> get eventsSub => _eventStream;
 
   /// Subscribe to new notices.
   /// Use [notices] to get all notices received in the past.
@@ -196,7 +202,7 @@ class RelayRepository {
                 _eventMap[t.eventId] = updatedOldEvent;
 
                 // Notify client that there are updates
-                _eventStreamController.sink.add(updatedOldEvent);
+                _addEventToCache(updatedOldEvent);
               }
               // Add the parent object to the new event
               evt.parents.add(_eventMap[t.eventId]!);
@@ -210,11 +216,26 @@ class RelayRepository {
           }
 
           final evt2 = evt.copyWith(verified: verified);
-          _eventStreamController.sink.add(evt2);
+          _addEventToCache(evt2);
           _eventMap[evt.id] = evt2;
         }
       }
     });
+  }
+
+  void _addEventToCache(Event e) {
+    _eventCache.add(e);
+    _flushEvents();
+  }
+
+  Future<void> _flushEvents() async {
+    if (_awaitingFlush) return;
+    _awaitingFlush = true;
+
+    await Future.delayed(Duration(milliseconds: _flushTime));
+    _eventStreamController.sink.add(_eventCache);
+    _eventCache = [];
+    _awaitingFlush = false;
   }
 
   Future<void> _storeRelays() async {

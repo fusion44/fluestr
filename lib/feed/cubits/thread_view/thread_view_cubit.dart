@@ -58,13 +58,16 @@ class ThreadViewCubit extends Cubit<ThreadViewState> {
   }
 
   void _initListener() {
-    _sub = _repo.eventsSub.listen((event) {
-      if (event.id == _mainEventId) {
-        emit(
-          ThreadLoaded(
-            [...event.parents, event, ...event.children].reversed.toList(),
-          ),
-        );
+    _sub = _repo.eventsSub.listen((events) {
+      for (var event in events) {
+        if (event.id == _mainEventId) {
+          emit(
+            ThreadLoaded(
+              [...event.parents, event, ...event.children].reversed.toList(),
+            ),
+          );
+          break;
+        }
       }
     });
   }

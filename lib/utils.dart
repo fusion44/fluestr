@@ -27,11 +27,14 @@ String tr(BuildContext context, String key,
 
 List<Relay> getStandardRelays() {
   return [
-    Relay('wss://nostr.rocks', true, true, false),
-    Relay('wss://relayer.fiatjaf.com', true, true, false),
-    Relay('wss://nostrrr.bublina.eu.org', true, true, false),
     Relay('wss://nostr-relay.wlvs.space', true, true, false),
     Relay('wss://nostr.bitcoiner.social', true, true, false),
-    Relay('wss://nostr-relay.freeberty.net', true, true, false),
+    Relay('wss://nostr-pub.semisol.dev', true, true, false),
+    Relay('wss://nostr.drss.io', true, true, false),
+    Relay('wss://relay.damus.io', true, true, false),
+    Relay('wss://nostr.openchain.fr', true, true, false),
+    Relay('wss://nostr.delo.software', true, true, false),
+    Relay('wss://relay.nostr.info', true, true, false),
+    Relay('wss://nostr-relay.untethr.me', true, true, false),
   ];
 }

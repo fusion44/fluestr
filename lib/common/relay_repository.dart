@@ -144,14 +144,19 @@ class RelayRepository {
     if (!r.active) return;
     debugPrint('Connecting to ${r.url}');
 
-    final chan = WebSocketChannel.connect(
-      Uri.parse(r.url),
-    );
+    try {
+      final chan = WebSocketChannel.connect(
+        Uri.parse(r.url),
+      );
 
-    final sub = _subscribe(chan);
+      final sub = _subscribe(chan, r);
 
-    _channels[r] = chan;
-    _subs[r] = sub;
+      _channels[r] = chan;
+      _subs[r] = sub;
+    } catch (e) {
+      debugPrint('Error while connecting to ${r.url}: $e');
+      rethrow;
+    }
   }
 
   Future<void> _disconnectRelay(Relay r) async {
@@ -164,13 +169,30 @@ class RelayRepository {
     }
   }
 
-  StreamSubscription _subscribe(WebSocketChannel channel) {
+  StreamSubscription _subscribe(WebSocketChannel channel, Relay r) {
     return channel.stream.listen((event) async {
       var data;
       try {
         data = jsonDecode(event);
       } catch (err) {
-        data = event.data;
+        // do nothing
+      }
+
+      if (data == null) {
+        try {
+          data = event.data;
+        } catch (err) {
+          debugPrint('Error while parsing event: $event');
+          debugPrint('Error: ${err.toString()}');
+          return;
+        }
+      }
+
+      if (data == null) return;
+
+      if (data[0] == 'EOSE') {
+        // EOSE -	used to notify clients all stored events have been sent
+        return;
       }
 
       if (data.length > 1) {
@@ -220,6 +242,13 @@ class RelayRepository {
           _eventMap[evt.id] = evt2;
         }
       }
+    }, onError: (err) {
+      if (err.toString().contains('errno = 111')) {
+        debugPrint('Unable to connect to relay: ${r.url}');
+        return;
+      }
+
+      debugPrint('Error while receiving data from relay: $err');
     });
   }
 

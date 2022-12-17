@@ -158,7 +158,21 @@ class _EditRelaysPageState extends State<EditRelaysPage> {
       builder: (BuildContext dlgContext) => AddRelayDialog(),
     );
 
-    if (!relayUrl.startsWith('ws') || !relayUrl.startsWith('wss')) {
+    if (relayUrl.isEmpty) return;
+
+    if (relayUrl.startsWith('http://')) {
+      relayUrl = relayUrl.replaceFirst('http://', 'ws://');
+    }
+
+    if (relayUrl.startsWith('https://')) {
+      relayUrl = relayUrl.replaceFirst('https://', 'wss://');
+    }
+
+    if (relayUrl.startsWith('ws://')) {
+      print(relayUrl);
+    }
+
+    if (!relayUrl.startsWith('ws://') && !relayUrl.startsWith('wss://')) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.amber[600],
@@ -166,8 +180,9 @@ class _EditRelaysPageState extends State<EditRelaysPage> {
               'Unsupported URL scheme \'https\'. \'ws\' or \'wss\' is required.'),
         ),
       );
-    } else {
-      _relayBloc.add(AddRelay(Relay(relayUrl, true, true)));
+      return;
     }
+
+    _relayBloc.add(AddRelay(Relay(relayUrl, true, true)));
   }
 }

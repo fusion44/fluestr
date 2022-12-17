@@ -14,28 +14,48 @@ class RelayBloc extends Bloc<RelayEvent, RelaysState> {
     });
 
     on<AddRelay>((event, emit) async {
-      await _repo.addRelay(event.relay);
-      emit(RelaysLoadedState([..._repo.relays]));
+      try {
+        await _repo.addRelay(event.relay);
+        emit(RelaysLoadedState([..._repo.relays]));
+      } catch (e) {
+        emit(RelaysErrorState(e.toString()));
+      }
     });
 
     on<RemoveRelay>((event, emit) async {
-      await _repo.removeRelay(event.relay);
-      emit(RelaysLoadedState([..._repo.relays]));
+      try {
+        await _repo.removeRelay(event.relay);
+        emit(RelaysLoadedState([..._repo.relays]));
+      } catch (e) {
+        emit(RelaysErrorState(e.toString()));
+      }
     });
 
     on<ToggleRelayActiveState>((event, emit) async {
-      await _repo.toggleRelayActiveState(event.relay);
-      emit(RelaysLoadedState([..._repo.relays]));
+      try {
+        await _repo.toggleRelayActiveState(event.relay);
+        emit(RelaysLoadedState([..._repo.relays]));
+      } catch (e) {
+        emit(RelaysErrorState(e.toString()));
+      }
     });
 
     on<ToggleRelayReadState>((event, emit) async {
-      await _repo.toggleRelayReadState(event.relay);
-      emit(RelaysLoadedState([..._repo.relays]));
+      try {
+        await _repo.toggleRelayReadState(event.relay);
+        emit(RelaysLoadedState([..._repo.relays]));
+      } catch (e) {
+        emit(RelaysErrorState(e.toString()));
+      }
     });
 
     on<ToggleRelayWriteState>((event, emit) async {
-      await _repo.toggleRelayWriteState(event.relay);
-      emit(RelaysLoadedState([..._repo.relays]));
+      try {
+        await _repo.toggleRelayWriteState(event.relay);
+        emit(RelaysLoadedState([..._repo.relays]));
+      } catch (e) {
+        emit(RelaysErrorState(e.toString()));
+      }
     });
   }
 }

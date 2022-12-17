@@ -17,3 +17,12 @@ class RelaysLoadedState extends RelaysState {
   @override
   List<Object> get props => relays;
 }
+
+class RelaysErrorState extends RelaysState {
+  final String error;
+
+  RelaysErrorState(this.error);
+
+  @override
+  List<Object> get props => [error];
+}

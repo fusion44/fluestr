@@ -73,7 +73,7 @@ class ContactsRepository {
       return newList;
     }).listen((events) {
       _handleProfileEvents(events);
-    });
+    }, onError: (e) => debugPrint(e));
   }
 
   /// Get all contacts received up to this point in time

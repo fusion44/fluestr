@@ -9,6 +9,7 @@ import '../../../common/models/profile.dart';
 
 import '../../../common/models/subscription_filter.dart';
 import '../../../common/relay_repository.dart';
+import '../../../utils.dart';
 
 part 'search_contact_event.dart';
 part 'search_contact_state.dart';
@@ -60,7 +61,7 @@ class SearchContactBloc
           _events.add(e);
         }
       }
-    });
+    }, onError: (e) => print(e));
 
     on<_FireCountdown>((event, emit) async {
       // After finding a contact and its profile we do fetch the events
@@ -86,7 +87,7 @@ class SearchContactBloc
 
       _currentSearch = event.pubkey;
       _relayRepository.trySendRaw(
-        jsonEncode(['REQ', _channel.toString(), f.toJson()]),
+        jsonify(['REQ', _channel.toString(), f.toJson()]),
       );
     });
   }

@@ -35,7 +35,7 @@ class FeedListCubit extends Cubit<FeedListState> {
             events.where((element) => !s.events.any((e) => element.id == e.id));
         emit(FeedListLoaded([...evts, ...s.events]));
       }
-    });
+    }, onError: (e) => print(e));
 
     if (_repo.events.isNotEmpty) {
       final l = _repo.events.where((element) => _isFollowingContact(element));

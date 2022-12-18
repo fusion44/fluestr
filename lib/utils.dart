@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -37,4 +38,18 @@ List<Relay> getStandardRelays() {
     Relay('wss://relay.nostr.info', true, true, false),
     Relay('wss://nostr-relay.untethr.me', true, true, false),
   ];
+}
+
+String jsonify(Object data, [bool prettyPrint = false]) {
+  if (prettyPrint) {
+    try {
+      var encoder = JsonEncoder.withIndent('  ');
+      var prettyprint = encoder.convert(data);
+      return prettyprint;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  return jsonEncode(data);
 }

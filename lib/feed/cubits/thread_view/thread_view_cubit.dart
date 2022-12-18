@@ -70,6 +70,6 @@ class ThreadViewCubit extends Cubit<ThreadViewState> {
           break;
         }
       }
-    });
+    }, onError: (e) => print(e));
   }
 }

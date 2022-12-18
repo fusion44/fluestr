@@ -184,6 +184,7 @@ class RelayRepository {
         } catch (err) {
           debugPrint('Error while parsing event: $event');
           debugPrint('Error: ${err.toString()}');
+          debugPrint(r.url);
           return;
         }
       }

@@ -1,3 +1,4 @@
+import 'package:fluestr/common/models/nostr_kinds.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -31,13 +32,13 @@ class ThreadViewPage extends StatelessWidget {
             child: ListView.separated(
               separatorBuilder: (context, index) {
                 final e = state.events.reversed.toList()[index];
-                if (e.kind == 1) return Divider();
+                if (e.kind == NostrKind.text) return Divider();
                 return Container();
               },
               itemCount: state.events.length,
               itemBuilder: (context, index) {
                 final e = state.events.reversed.toList()[index];
-                if (e.kind == 1) {
+                if (e.kind == NostrKind.text) {
                   return TextEvent(
                     e,
                     onTap: (id) => context.push('/event/$id'),

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fluestr/common/models/nostr_kinds.dart';
 import '../../../common/models/contact.dart';
 import '../../../common/models/event.dart';
 import '../../../common/models/profile.dart';
@@ -17,9 +18,9 @@ const int _channel = 1337;
 class SearchContactBloc
     extends Bloc<SearchContactBaseEvent, SearchContactState> {
   final RelayRepository _relayRepository;
-  String _currentSearch = "";
+  String _currentSearch = '';
   Contact? _contact;
-  List<Event> _events = [];
+  final List<Event> _events = [];
   bool _fetchingFeed = false;
   bool _countDownRunning = false;
 
@@ -31,21 +32,29 @@ class SearchContactBloc
       ];
     }).listen((events) {
       for (var e in events) {
-        if (e.kind == 0 && _currentSearch == e.pubkey && !_fetchingFeed) {
+        if (e.kind == NostrKind.metadata &&
+            _currentSearch == e.pubkey &&
+            !_fetchingFeed) {
           _contact = Contact(
             pubkey: e.pubkey,
             profile: Profile.fromJson(jsonDecode(e.content)),
           );
           final f = SubscriptionFilter(
             authors: [e.pubkey],
-            eventKinds: [0, 1, 2],
+            eventKinds: [
+              NostrKind.metadata,
+              NostrKind.text,
+              NostrKind.recommendRelay,
+            ],
           );
 
           _fetchingFeed = true;
           _relayRepository.trySendRaw(
             jsonEncode(['REQ', _channel.toString(), f.toJson()]),
           );
-        } else if (e.kind == 1 && _currentSearch == e.pubkey && _fetchingFeed) {
+        } else if (e.kind == NostrKind.text &&
+            _currentSearch == e.pubkey &&
+            _fetchingFeed) {
           if (_contact == null) throw StateError('Contact must not be null');
           if (!_countDownRunning) add(_FireCountdown());
           _events.add(e);
@@ -72,7 +81,7 @@ class SearchContactBloc
 
       final f = SubscriptionFilter(
         authors: [event.pubkey],
-        eventKinds: [0, 2],
+        eventKinds: [NostrKind.metadata, NostrKind.recommendRelay],
       );
 
       _currentSearch = event.pubkey;

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:fluestr/common/models/nostr_kinds.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'constants.dart';
@@ -36,7 +38,11 @@ class ContactsRepository {
       final f = SubscriptionFilter(
         authors:
             contacts.where((e) => e.following).map((e) => e.pubkey).toList(),
-        eventKinds: [0, 1, 2],
+        eventKinds: [
+          NostrKind.metadata,
+          NostrKind.text,
+          NostrKind.recommendRelay,
+        ],
       );
 
       _relayRepo.trySendRaw(
@@ -52,13 +58,15 @@ class ContactsRepository {
 
   ContactsRepository(this._relayRepo) {
     _contactsStream = _contactsStreamController.stream.asBroadcastStream();
-    final l = _relayRepo.events.where((element) => element.kind == 0);
+    final l = _relayRepo.events.where(
+      (element) => element.kind == NostrKind.metadata,
+    );
     _handleProfileEvents(l);
 
     _sub = _relayRepo.eventsSub.map<List<Event>>((events) {
       final newList = <Event>[];
       for (var e in events) {
-        if (e.kind == 0 && e.channel == fluestrMainChannel) {
+        if (e.kind == NostrKind.metadata && e.channel == fluestrMainChannel) {
           newList.add(e);
         }
       }

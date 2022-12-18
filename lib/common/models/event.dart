@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bip340/bip340.dart' as bip340;
 import 'package:crypto/crypto.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fluestr/common/models/nostr_kinds.dart';
 import 'package:hex/hex.dart';
 
 import '../../utils.dart';
@@ -15,7 +16,7 @@ class Event extends Equatable {
   final String id;
   final String pubkey;
   final DateTime createdAtDt;
-  final int kind;
+  final NostrKind kind;
   final List<Tag> tags;
   final String content;
   final String sig;
@@ -55,13 +56,13 @@ class Event extends Equatable {
         id = '',
         pubkey = '',
         createdAtDt = DateTime.now(),
-        kind = -1,
+        kind = NostrKind.unknown,
         tags = const [],
         content = '',
         sig = '',
         verified = false;
 
-  static Future<Event> kind1(
+  static Future<Event> textEvent(
     Credentials creds,
     String content, {
     List<EventTag> tags = const [],
@@ -71,7 +72,7 @@ class Event extends Equatable {
       pubkey: creds.pubKey,
       tags: tags,
       createdAtDt: createdAt ?? DateTime.now(),
-      kind: 1,
+      kind: NostrKind.text,
       content: content,
     );
     return await e.signWith(creds.privKey);
@@ -79,12 +80,12 @@ class Event extends Equatable {
 
   /// Event to publish a the a contact list to relays
   /// https://github.com/fiatjaf/nostr/blob/master/nips/02.md
-  Event.kind3(String pubKey, List<ProfileTag> tags)
+  Event.publishContacts(String pubKey, List<ProfileTag> tags)
       : pubkey = pubKey,
         tags = tags,
         createdAtDt = DateTime.now(),
         id = '',
-        kind = 3,
+        kind = NostrKind.contacts,
         content = '',
         channel = 0,
         relay = '',
@@ -125,7 +126,7 @@ class Event extends Equatable {
         pubkey: json['pubkey'],
         createdAtDt:
             DateTime.fromMillisecondsSinceEpoch(json['created_at'] * 1000),
-        kind: json['kind'],
+        kind: NostrKind.fromValue(json['kind'] ?? -1),
         tags: tags,
         content: json['content'],
         sig: json['sig']);
@@ -152,7 +153,7 @@ class Event extends Equatable {
     String? id,
     String? pubkey,
     int? createdAt,
-    int? kind,
+    NostrKind? kind,
     List<Tag>? tags,
     String? content,
     String? sig,
@@ -183,7 +184,7 @@ class Event extends Equatable {
     data['id'] = id;
     data['pubkey'] = pubkey;
     data['created_at'] = createdAt;
-    data['kind'] = kind;
+    data['kind'] = kind.value;
     data['tags'] = tags.map((v) => v.toJson()).toList();
     data['content'] = content;
     data['sig'] = sig;
@@ -210,7 +211,7 @@ class Event extends Equatable {
       0,
       pubkey,
       createdAt,
-      kind,
+      kind.value,
       tags,
       content,
     ]); //.replaceAll(RegExp(r'\s+'), '');

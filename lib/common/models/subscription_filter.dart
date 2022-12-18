@@ -1,9 +1,11 @@
+import 'package:fluestr/common/models/nostr_kinds.dart';
+
 class SubscriptionFilter {
   /// a list of event ids
   final List<String> eventIds;
 
   /// a list of kind numbers
-  final List<int> eventKinds;
+  final List<NostrKind> eventKinds;
 
   /// a list of event ids that are referenced in an "e" tag
   final List<String> eTagIds; // #e
@@ -33,7 +35,7 @@ class SubscriptionFilter {
   Map<String, dynamic> toJson() {
     return {
       'ids': eventIds.isEmpty ? null : eventIds,
-      'kinds': eventKinds.isEmpty ? null : eventKinds,
+      'kinds': eventKinds.isEmpty ? null : eventKinds.toIntList(),
       '#e': eTagIds.isEmpty ? null : eTagIds,
       '#p': pTagIds.isEmpty ? null : pTagIds,
       'since': since != null ? since!.millisecondsSinceEpoch / 1000 : null,

@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fluestr/common/models/nostr_kinds.dart';
 
 import '../../../common/constants.dart';
 import '../../../common/models/event.dart';
@@ -42,7 +43,7 @@ class ThreadViewCubit extends Cubit<ThreadViewState> {
       final f = SubscriptionFilter(
         eTagIds: [mainEvent.id], // To get the children
         eventIds: unknownIds, // to get parents
-        eventKinds: [1],
+        eventKinds: [NostrKind.text],
       );
 
       _repo.trySendRaw(

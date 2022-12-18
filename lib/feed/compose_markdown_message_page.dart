@@ -85,7 +85,7 @@ class _ComposeMarkdownMessagePageState
 
   Future<void> _sendMessage() async {
     final box = await Hive.openBox(prefBoxNameSettings);
-    final evt = await Event.kind1(box.get(prefCredentials), _currentText);
+    final evt = await Event.textEvent(box.get(prefCredentials), _currentText);
 
     // TODO: find bug where verification goes wrong
     _relayRepo.trySendRaw(

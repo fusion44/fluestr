@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fluestr/common/models/nip19.dart';
 import 'package:fluestr/common/models/nostr_kinds.dart';
 import '../../../common/models/contact.dart';
 import '../../../common/models/event.dart';
@@ -19,7 +20,7 @@ const int _channel = 1337;
 class SearchContactBloc
     extends Bloc<SearchContactBaseEvent, SearchContactState> {
   final RelayRepository _relayRepository;
-  String _currentSearch = '';
+  Nip19KeySet? _currentSearch;
   Contact? _contact;
   final List<Event> _events = [];
   bool _fetchingFeed = false;
@@ -32,9 +33,11 @@ class SearchContactBloc
           if (e.channel == _channel) e
       ];
     }).listen((events) {
+      if (_currentSearch == null) return;
+
       for (var e in events) {
         if (e.kind == NostrKind.metadata &&
-            _currentSearch == e.pubkey &&
+            _currentSearch?.pubKeyHex == e.pubkey &&
             !_fetchingFeed) {
           _contact = Contact(
             pubkey: e.pubkey,
@@ -54,7 +57,7 @@ class SearchContactBloc
             jsonEncode(['REQ', _channel.toString(), f.toJson()]),
           );
         } else if (e.kind == NostrKind.text &&
-            _currentSearch == e.pubkey &&
+            _currentSearch?.pubKeyHex == e.pubkey &&
             _fetchingFeed) {
           if (_contact == null) throw StateError('Contact must not be null');
           if (!_countDownRunning) add(_FireCountdown());
@@ -76,16 +79,17 @@ class SearchContactBloc
     });
 
     on<SearchContactByPubKey>((event, emit) {
-      if (_currentSearch == event.pubkey) {
+      if (_currentSearch?.pubKeyHex == event.pubkey) {
         return;
       }
 
+      final k = Nip19KeySet(event.pubkey);
       final f = SubscriptionFilter(
-        authors: [event.pubkey],
+        authors: [k.pubKeyHex],
         eventKinds: [NostrKind.metadata, NostrKind.recommendRelay],
       );
 
-      _currentSearch = event.pubkey;
+      _currentSearch = k;
       _relayRepository.trySendRaw(
         jsonify(['REQ', _channel.toString(), f.toJson()]),
       );

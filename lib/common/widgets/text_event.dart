@@ -155,7 +155,7 @@ class TextEvent extends StatelessWidget {
 
   Widget _buildAvatar(Contact contact) {
     if (contact.profile.picture.isNotEmpty) {
-      return ProfileAvatar(url: contact.profile.picture);
+      return ProfileAvatar(imageData: contact.profile.picture);
     } else if (contact.profile.name.isNotEmpty) {
       return ProfileAvatar(name: contact.profile.name);
     } else {

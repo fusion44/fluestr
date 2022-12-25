@@ -11,7 +11,7 @@ class ContactListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget avatar;
     if (_contact.profile.picture.isNotEmpty) {
-      avatar = ProfileAvatar(url: _contact.profile.picture);
+      avatar = ProfileAvatar(imageData: _contact.profile.picture);
     } else if (_contact.profile.name.isNotEmpty) {
       avatar = ProfileAvatar(name: _contact.profile.name);
     } else {

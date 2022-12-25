@@ -1,11 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 class ProfileAvatar extends StatelessWidget {
-  final String url;
+  final String imageData;
   final String name;
   final double size;
   const ProfileAvatar({
-    this.url = '',
+    this.imageData = '',
     this.name = '',
     this.size = 25.0,
     Key? key,
@@ -13,24 +15,33 @@ class ProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget c;
-    if (url.isNotEmpty) {
-      c = CircleAvatar(
+    if (imageData.isNotEmpty && imageData.startsWith('http')) {
+      return CircleAvatar(
         radius: size,
-        foregroundImage: NetworkImage(url, scale: 0.5),
-      );
-    } else if (name.isNotEmpty) {
-      c = CircleAvatar(
-        radius: size,
-        child: Text(name.substring(0, 2)),
-      );
-    } else {
-      c = CircleAvatar(
-        radius: size,
-        child: Icon(Icons.person),
+        foregroundImage: NetworkImage(imageData, scale: 0.5),
       );
     }
 
-    return c;
+    if (imageData.isNotEmpty &&
+        imageData.startsWith('data:image') &&
+        imageData.contains(',')) {
+      final bytes = base64.decode(imageData.split(',').last);
+      return CircleAvatar(
+        radius: size,
+        foregroundImage: MemoryImage(bytes, scale: 0.5),
+      );
+    }
+
+    if (name.isNotEmpty) {
+      return CircleAvatar(
+        radius: size,
+        child: Text(name.substring(0, 2)),
+      );
+    }
+
+    return CircleAvatar(
+      radius: size,
+      child: Icon(Icons.person),
+    );
   }
 }

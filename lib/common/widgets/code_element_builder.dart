@@ -16,7 +16,7 @@ class CodeElementBuilder extends MarkdownElementBuilder {
     }
     return SizedBox(
       width:
-          MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
+          MediaQueryData.fromWindow(WidgetsBinding.instance.window).size.width,
       child: HighlightView(
         element.textContent,
         language: language,

@@ -22,6 +22,9 @@ class SubscriptionFilter {
   /// a list of pubkeys, the pubkey of an event must be one of these
   final List<String> authors;
 
+  /// maximum number of events to be returned in the initial query
+  final int? limit;
+
   SubscriptionFilter({
     this.eventIds = const [],
     this.eventKinds = const [],
@@ -30,17 +33,19 @@ class SubscriptionFilter {
     this.since,
     this.until,
     this.authors = const [],
+    this.limit,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'ids': eventIds.isEmpty ? null : eventIds,
-      'kinds': eventKinds.isEmpty ? null : eventKinds.toIntList(),
-      '#e': eTagIds.isEmpty ? null : eTagIds,
-      '#p': pTagIds.isEmpty ? null : pTagIds,
-      'since': since != null ? since!.millisecondsSinceEpoch / 1000 : null,
-      'until': until != null ? until!.millisecondsSinceEpoch / 1000 : null,
-      'authors': authors.isEmpty ? null : authors,
+      if (eventIds.isNotEmpty) 'ids': eventIds,
+      if (eventKinds.isNotEmpty) 'kinds': eventKinds.toIntList(),
+      if (eTagIds.isNotEmpty) '#e': eTagIds,
+      if (pTagIds.isNotEmpty) '#p': pTagIds,
+      if (since != null) 'since': since!.millisecondsSinceEpoch / 1000,
+      if (until != null) 'until': until!.millisecondsSinceEpoch / 1000,
+      if (authors.isNotEmpty) 'authors': authors,
+      if (limit != null) 'limit': limit,
     };
   }
 }

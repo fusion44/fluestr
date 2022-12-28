@@ -168,16 +168,12 @@ class _EditRelaysPageState extends State<EditRelaysPage> {
       relayUrl = relayUrl.replaceFirst('https://', 'wss://');
     }
 
-    if (relayUrl.startsWith('ws://')) {
-      print(relayUrl);
-    }
-
     if (!relayUrl.startsWith('ws://') && !relayUrl.startsWith('wss://')) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.amber[600],
           content: Text(
-              'Unsupported URL scheme \'https\'. \'ws\' or \'wss\' is required.'),
+              'Unsupported URL scheme "https". "ws" or "wss" is required.'),
         ),
       );
       return;

@@ -37,4 +37,12 @@ class Contact extends Equatable {
       : pubkey = pubkey,
         profile = Profile.empty(),
         following = false;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'pubkey': pubkey,
+      'profile': profile.toJson(),
+      'following': following,
+    };
+  }
 }

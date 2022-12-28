@@ -33,4 +33,13 @@ class Profile extends Equatable {
         picture = json['picture'] ?? '',
         about = json['about'] ?? '',
         nip05 = json['nip05'] ?? '';
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'picture': picture,
+      'about': about,
+      'nip05': nip05,
+    };
+  }
 }

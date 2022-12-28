@@ -11,7 +11,6 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return SafeArea(
       child: SettingsList(
         sections: [

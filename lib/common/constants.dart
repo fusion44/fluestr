@@ -47,8 +47,11 @@ const themeDark = 'dark';
 const themeLight = 'light';
 
 const double defaultHorizontalWhiteSpace = 4.0;
+const double defaultMaxMainColumnWidth = 600.0;
 
 const fluestrMainChannel = 0;
+
+const fluestrIdToken = '{{ID}}';
 
 // Background processing
 class LocalNotificationChannels {

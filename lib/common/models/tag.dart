@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 enum TagType { event, profile, unknown }
 
 String _tagTypeAbbrev(TagType tt) {
@@ -25,7 +23,6 @@ abstract class Tag {
       } else if (json[0] == 'p') {
         return ProfileTag.fromJson(json);
       } else {
-        debugPrint('Unknown tag type: $json');
         return UnknownTag();
       }
     } else {
@@ -53,6 +50,10 @@ class EventTag extends Tag {
   @override
   List<dynamic> toJson() =>
       [_tagTypeAbbrev(type), eventId, recommendedRelayUrl];
+
+  @override
+  String toString() =>
+      'EventTag{eventId: $eventId, recommendedRelayUrl: $recommendedRelayUrl}';
 }
 
 class ProfileTag extends Tag {

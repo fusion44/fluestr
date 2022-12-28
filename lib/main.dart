@@ -92,8 +92,11 @@ Future<void> main() async {
         name: 'search-contact',
         builder: (context, state) => BlocProvider(
           create: (context) => _contactsBloc,
-          child: RepositoryProvider.value(
-            value: _relayRepo,
+          child: MultiRepositoryProvider(
+            providers: [
+              RepositoryProvider.value(value: _contactsRepo),
+              RepositoryProvider.value(value: _relayRepo),
+            ],
             child: SearchContactPage(),
           ),
         ),
@@ -152,19 +155,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark(),
       localizationsDelegates: delegates,
       localeResolutionCallback: (deviceLocale, supportedLocales) {
-        if (deviceLocale != null) return _checkLocaleSetting(deviceLocale);
+        if (deviceLocale != null) return deviceLocale;
+        return null;
       },
     );
-  }
-
-  Locale _checkLocaleSetting(Locale deviceLocale) {
-    // get  langCode from Settings Hive Box
-    var langCode = 'en';
-    if (langCode == null) {
-      return deviceLocale;
-    } else {
-      return Locale(langCode);
-    }
   }
 
   List<LocalizationsDelegate<dynamic>> _buildLocalizationDelegates() {

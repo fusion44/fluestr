@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:fluestr/common/requests/request_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -9,7 +11,68 @@ import '../utils.dart';
 import 'constants.dart';
 import 'models/event.dart';
 import 'models/relay.dart';
-import 'models/tag.dart';
+
+class RequestInfo {
+  final String id;
+  final Future future;
+
+  RequestInfo(this.id, this.future);
+}
+
+class _ActiveRequestGroup {
+  final String id;
+  final Map<Relay, bool> _relays = {};
+  final Map<String, Event> _events = {};
+  final bool _partialUpdates;
+  final Completer<RequestResult> _completer = Completer();
+  final String query;
+
+  _ActiveRequestGroup(this.id, this.query, [this._partialUpdates = false]);
+
+  void addRelay(Relay r) => _relays[r] = false;
+
+  void setEose(Relay r) {
+    _relays[r] = true;
+    if (isDone) _complete();
+  }
+
+  void addEvent(Relay r, Event e) {
+    if (_events.containsKey(e.id)) {
+      _events[e.id]!.relays.add(r);
+      return;
+    }
+
+    _events[e.id] = e.copyWith(relays: [r]);
+  }
+
+  void forceComplete(String? reason) => _complete(true, reason);
+
+  bool get isDone => _relays.values.every((e) => e);
+
+  bool get partialUpdates => _partialUpdates;
+
+  Future<RequestResult> get future => _completer.future;
+
+  void _complete([bool forced = false, String? forceReason]) {
+    if (_completer.isCompleted) {
+      debugPrint(
+        'Warning: trying to complete an already completed completer (forced: $forced, reason: $forceReason)',
+      );
+      return;
+    }
+
+    _completer.complete(
+      RequestResult(
+        _events.values.toList(),
+        id: id,
+        complete: isDone,
+        relays: _relays,
+        forced: forced,
+        forceReason: forceReason,
+      ),
+    );
+  }
+}
 
 class RelayRepository {
   final List<Relay> _relays = [];
@@ -24,7 +87,12 @@ class RelayRepository {
   late final Stream<String> _noticeStream;
   final List<String> _notices = [];
 
+  final _eoseStreamController = StreamController<int>();
+  late final Stream<int> _eoseStream;
+
   late final Box _box;
+
+  late final Map<String, _ActiveRequestGroup> _activeRequests = {};
 
   // we'll cache incoming events and send them every
   // x milliseconds to clients to avoid back pressure issues
@@ -39,6 +107,9 @@ class RelayRepository {
   /// Subscribe to new notices.
   /// Use [notices] to get all notices received in the past.
   Stream<String> get noticeSub => _noticeStream;
+
+  // Subscribe to EOSE events
+  Stream<int> get eoseSub => _eoseStream;
 
   List<Event> get events => _eventMap.values.toList();
 
@@ -60,6 +131,7 @@ class RelayRepository {
   Future<void> init() async {
     _eventStream = _eventStreamController.stream.asBroadcastStream();
     _noticeStream = _noticeStreamController.stream.asBroadcastStream();
+    _eoseStream = _eoseStreamController.stream.asBroadcastStream();
 
     _box = await Hive.openBox(prefBoxNameSettings);
     final rs = _box.get(prefRelayUrls, defaultValue: <Relay>[]);
@@ -140,6 +212,38 @@ class RelayRepository {
     }
   }
 
+  RequestInfo query(String query, [bool partialUpdates = false]) {
+    final id = _genId();
+    final q = query.replaceFirst(fluestrIdToken, id);
+    final grp = _ActiveRequestGroup(id, q, partialUpdates);
+    _activeRequests[id] = grp;
+
+    for (var r in _channels.keys) {
+      final chan = _channels[r];
+      if (chan == null) throw StateError('Channel for relay $r is null');
+      grp.addRelay(r);
+      chan.sink.add(q);
+    }
+
+    return RequestInfo(id, grp._completer.future);
+  }
+
+  void forceCompleteRequest(String reqId, [String? reason]) {
+    if (_activeRequests.containsKey(reqId)) {
+      final grp = _activeRequests.remove(reqId);
+      grp?.forceComplete(reason);
+      grp?._relays.keys.forEach((r) {
+        _channels[r]?.sink.add(jsonify(['CLOSE', reqId]));
+      });
+
+      return;
+    }
+
+    debugPrint(
+      'Warning: Request ${reqId} not found when trying to force complete it',
+    );
+  }
+
   void _connectRelay(Relay r) {
     if (!r.active) return;
     debugPrint('Connecting to ${r.url}');
@@ -192,7 +296,21 @@ class RelayRepository {
       if (data == null) return;
 
       if (data[0] == 'EOSE') {
+        // TODO: convert channel IDs to Strings everywhere
         // EOSE -	used to notify clients all stored events have been sent
+        var id = int.tryParse(data[1]) ?? -1;
+
+        final req = _activeRequests[data[1]];
+        if (req == null) return;
+
+        req.setEose(r);
+
+        if (req.isDone) {
+          _eoseStreamController.sink.add(id);
+          _eventStreamController.sink.add([...req._events.values.toList()]);
+          forceCompleteRequest(id.toString());
+        }
+
         return;
       }
 
@@ -206,41 +324,27 @@ class RelayRepository {
 
         if (data[0] == 'EVENT') {
           if (data.length < 3) return null;
-          final channel = int.tryParse(data[1]);
-          final evt = Event.fromJson(data[2], channel: channel ?? 0);
+          final id = int.tryParse(data[1]);
+          final evt = Event.fromJson(data[2], channel: id ?? 0);
           final verified = await evt.verify();
 
-          final taggedEvents = evt.tags.whereType<EventTag>().toList();
-          for (var t in taggedEvents) {
-            if (_eventMap.containsKey(t.eventId) &&
-                _eventMap[t.eventId] != null) {
-              // We have a new event that is a reply to an existing old event,
-              // Events might be loaded multiple times, so we must check if
-              // the child is already registered
-              if (!_eventMap[t.eventId]!.hasChild(evt)) {
-                final updatedOldEvent =
-                    _eventMap[t.eventId]!.copyWith(child: evt);
+          final req = _activeRequests[id.toString()];
+          if (req == null) return;
 
-                // Update the event map with the updated object
-                _eventMap[t.eventId] = updatedOldEvent;
-
-                // Notify client that there are updates
-                _addEventToCache(updatedOldEvent);
-              }
-              // Add the parent object to the new event
-              evt.parents.add(_eventMap[t.eventId]!);
-            }
-          }
-
-          if (!verified) {
-            _eventStreamController.sink.addError(
-              'Received unverifiable Event: ${evt.toJsonString()}',
-            );
-          }
+          // if (!verified) {
+          //   _eventStreamController.sink.addError(
+          //     'Received unverifiable Event: ${evt.toJsonString()}',
+          //   );
+          // }
 
           final evt2 = evt.copyWith(verified: verified);
-          _addEventToCache(evt2);
+
+          if (req.partialUpdates) {
+            _addEventToCache(evt2);
+          }
+
           _eventMap[evt.id] = evt2;
+          req.addEvent(r, evt2);
         }
       }
     }, onError: (err) {
@@ -270,5 +374,13 @@ class RelayRepository {
 
   Future<void> _storeRelays() async {
     await _box.put(prefRelayUrls, _relays);
+  }
+
+  String _genId() {
+    var id = Random().nextInt(100000).toString();
+    while (_activeRequests.keys.contains(id)) {
+      id = Random().nextInt(100000).toString();
+    }
+    return id;
   }
 }

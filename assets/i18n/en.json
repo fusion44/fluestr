@@ -29,10 +29,15 @@
   },
   "contacts": {
     "contact_list_empty": "No contacts, use search to add some",
+    "follow": "follow",
+    "recommended_relays": "Recommended Relays",
+    "retry_search": "Retry",
     "search_action": "Search",
     "search_contacts_title": "Search Contact",
     "search_display_profile_header": "Contact Profile",
-    "search_preview_posts": "Recent Posts"
+    "search_no_posts_found": "User doesn't have any posts on any relay queried.",
+    "search_preview_posts": "Recent Posts",
+    "unfollow": "unfollow"
   },
   "feed": {
     "feed_list_empty1": "Feed is empty.",
@@ -64,7 +69,9 @@
   "qr": {
     "open_qr_scanner": "Open QR-Code scanner"
   },
+  "query_info": "Query Info",
   "receive": "Receive",
+  "recent_posts": "Recent Posts",
   "send": "Send",
   "title": "SendMany App",
   "total": "Total",

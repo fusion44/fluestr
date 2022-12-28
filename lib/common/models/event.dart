@@ -4,6 +4,7 @@ import 'package:bip340/bip340.dart' as bip340;
 import 'package:crypto/crypto.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fluestr/common/models/nostr_kinds.dart';
+import 'package:fluestr/common/models/relay.dart';
 import 'package:hex/hex.dart';
 
 import '../../utils.dart';
@@ -12,7 +13,6 @@ import 'tag.dart';
 
 class Event extends Equatable {
   final int channel;
-  final String relay;
   final String id;
   final String pubkey;
   final DateTime createdAtDt;
@@ -21,6 +21,7 @@ class Event extends Equatable {
   final String content;
   final String sig;
   final bool verified;
+  final List<Relay> relays;
   final List<Event> _parents = [];
   final List<Event> _children = [];
 
@@ -37,7 +38,7 @@ class Event extends Equatable {
     required this.createdAtDt,
     required this.kind,
     this.channel = 0,
-    this.relay = '',
+    this.relays = const [],
     this.id = '',
     this.tags = const [],
     this.content = '',
@@ -52,7 +53,7 @@ class Event extends Equatable {
 
   Event.empty()
       : channel = 0,
-        relay = '',
+        relays = const [],
         id = '',
         pubkey = '',
         createdAtDt = DateTime.now(),
@@ -88,7 +89,7 @@ class Event extends Equatable {
         kind = NostrKind.contacts,
         content = '',
         channel = 0,
-        relay = '',
+        relays = const [],
         sig = '',
         verified = false;
 
@@ -96,7 +97,7 @@ class Event extends Equatable {
   List<Object> get props => [
         channel,
         id,
-        relay,
+        relays,
         pubkey,
         createdAt,
         kind,
@@ -109,7 +110,7 @@ class Event extends Equatable {
 
   static Event fromJson(
     Map<String, dynamic> json, {
-    String relay = '',
+    List<Relay> relay = const [],
     int channel = 0,
   }) {
     final tags = <Tag>[];
@@ -121,7 +122,7 @@ class Event extends Equatable {
 
     return Event(
         channel: channel,
-        relay: relay,
+        relays: relay,
         id: json['id'],
         pubkey: json['pubkey'],
         createdAtDt:
@@ -149,7 +150,7 @@ class Event extends Equatable {
 
   Event copyWith({
     int? channel,
-    String? relay,
+    List<Relay>? relays,
     String? id,
     String? pubkey,
     int? createdAt,
@@ -163,7 +164,7 @@ class Event extends Equatable {
   }) {
     return Event(
       channel: channel ?? this.channel,
-      relay: relay ?? this.relay,
+      relays: relays ?? this.relays,
       id: id ?? this.id,
       pubkey: pubkey ?? this.pubkey,
       createdAtDt: createdAt != null
@@ -190,6 +191,8 @@ class Event extends Equatable {
     data['sig'] = sig;
     return data;
   }
+
+  Map<String, dynamic> toJson() => toMap();
 
   String toJsonString() {
     return json.encode(toMap());

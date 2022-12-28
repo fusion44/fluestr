@@ -8,9 +8,12 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'constants.dart';
 import 'models/contact.dart';
 import 'models/event.dart';
+import 'models/nip19.dart';
 import 'models/profile.dart';
 import 'models/subscription_filter.dart';
 import 'relay_repository.dart';
+import 'requests/fetch_contact_request.dart';
+import 'requests/request_result.dart';
 
 class ContactsRepository {
   final RelayRepository _relayRepo;
@@ -83,13 +86,43 @@ class ContactsRepository {
   /// Use [contacts] to get all [Profiles] objects received in the past.
   Stream<Contact> get contactsStream => _contactsStream;
 
-  void followContact(Contact c) async {
-    final box = await Hive.openBox(prefBoxNameSettings);
-    final newContact = c.copyWith(following: true);
+  Future<RequestResult<Contact?>> fetchContact(
+    Nip19KeySet key, [
+    bool useCache = false,
+  ]) async {
+    final req = FetchContactRequest(_relayRepo, key: key, useCache: useCache);
+    final res = await req.fetch();
+    final contact = res.result;
 
-    _contacts[c.pubkey] = newContact;
+    if (contact == null) return RequestResult<Contact?>(null);
+
+    unawaited(req.close());
+
+    return res.copyWith(
+      result: contact.copyWith(
+        following: _contacts.keys.contains(contact.pubkey),
+      ),
+    );
+  }
+
+  Future<Contact> followContact(Contact contact) async {
+    final box = await Hive.openBox(prefBoxNameSettings);
+    final newContact = contact.copyWith(following: true);
+
+    _contacts[contact.pubkey] = newContact;
     _contactsStreamController.sink.add(newContact);
     await box.put(prefFollowedContacts, _contacts.values.toList());
+    return newContact;
+  }
+
+  Future<Contact> unfollowContact(Contact contact) async {
+    final box = await Hive.openBox(prefBoxNameSettings);
+    final newContact = contact.copyWith(following: false);
+
+    _contacts.remove(contact.pubkey);
+    _contactsStreamController.sink.add(newContact);
+    await box.put(prefFollowedContacts, _contacts.values.toList());
+    return newContact;
   }
 
   void _handleProfileEvents(Iterable<Event> events) {

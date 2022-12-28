@@ -12,5 +12,3 @@ class SearchContactByPubKey extends SearchContactBaseEvent {
 
   SearchContactByPubKey(this.pubkey);
 }
-
-class _FireCountdown extends SearchContactBaseEvent {}

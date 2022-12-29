@@ -1,9 +1,7 @@
+import 'package:fluestr/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive/hive.dart';
-
-import '../constants.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -16,9 +14,6 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
-      // var prefs = await SharedPreferences.getInstance();
-      // var code = prefs.getString('EN');
-      // await FlutterI18n.refresh(context, Locale(code == null ?? 'en'));
       await FlutterI18n.refresh(context, Locale('en'));
     });
 
@@ -27,17 +22,25 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   void _initAsync() async {
-    final box = await Hive.openBox(prefBoxNameSettings);
-    final onBoardingFinished = box.get(
-      prefOnboardingFinished,
-      defaultValue: false,
-    );
-    if (onBoardingFinished) {
+    final pref = await getPreferences();
+
+    if (pref.onboardingFinished) {
       context.goNamed('home');
-    } else {
-      await box.put(prefCurrentlyOnboarding, true);
-      context.goNamed('onboarding');
+      return;
     }
+
+    if (!pref.currentlyOnboarding) {
+      await setPreferences(pref.copyWith(currentlyOnboarding: true));
+      context.goNamed('onboarding');
+      return;
+    }
+
+    if (pref.currentlyOnboarding) {
+      context.goNamed('onboarding');
+      return;
+    }
+
+    throw StateError('Invalid state when determining startup state!');
   }
 
   @override

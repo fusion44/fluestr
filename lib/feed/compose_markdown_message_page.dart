@@ -1,13 +1,13 @@
 import 'dart:convert';
 
+import 'package:fluestr/utils.dart';
+
 import '../common/models/event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive/hive.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:go_router/go_router.dart';
 
-import '../common/constants.dart';
 import '../common/relay_repository.dart';
 import 'markdown/markdown_editor.dart';
 import 'markdown/markdown_preview.dart';
@@ -84,8 +84,8 @@ class _ComposeMarkdownMessagePageState
   }
 
   Future<void> _sendMessage() async {
-    final box = await Hive.openBox(prefBoxNameSettings);
-    final evt = await Event.textEvent(box.get(prefCredentials), _currentText);
+    final prefs = await getPreferences();
+    final evt = await Event.textEvent(prefs.credentials, _currentText);
 
     // TODO: find bug where verification goes wrong
     _relayRepo.trySendRaw(

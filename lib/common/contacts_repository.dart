@@ -2,15 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:fluestr/common/models/nostr_kinds.dart';
+import 'package:fluestr/utils.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 
 import 'constants.dart';
 import 'models/contact.dart';
 import 'models/event.dart';
 import 'models/nip19.dart';
 import 'models/profile.dart';
-import 'models/subscription_filter.dart';
 import 'relay_repository.dart';
 import 'requests/fetch_contact_request.dart';
 import 'requests/request_result.dart';
@@ -23,35 +23,20 @@ class ContactsRepository {
   late final StreamSubscription<List<Event>> _sub;
   bool _initialized = false;
 
+  late final Isar _isar;
+
   bool get initialized => _initialized;
 
   Future<void> init() async {
-    final box = await Hive.openBox(prefBoxNameSettings);
+    _isar = getIsar();
 
-    List<Contact> contacts = box.get(
-      prefFollowedContacts,
-      defaultValue: <Contact>[],
-    ).cast<Contact>();
+    var l = await _isar.contacts.where().findAll();
+    final contacts = l.toList(growable: false);
 
     for (final c in contacts) {
       _contacts[c.pubkey] = c;
     }
 
-    if (contacts.isNotEmpty) {
-      final f = SubscriptionFilter(
-        authors:
-            contacts.where((e) => e.following).map((e) => e.pubkey).toList(),
-        eventKinds: [
-          NostrKind.metadata,
-          NostrKind.text,
-          NostrKind.recommendRelay,
-        ],
-      );
-
-      _relayRepo.trySendRaw(
-        jsonEncode(['REQ', fluestrMainChannel.toString(), f.toJson()]),
-      );
-    }
     _initialized = true;
   }
 
@@ -106,22 +91,22 @@ class ContactsRepository {
   }
 
   Future<Contact> followContact(Contact contact) async {
-    final box = await Hive.openBox(prefBoxNameSettings);
     final newContact = contact.copyWith(following: true);
+    await _isar.writeTxn(() async => await _isar.contacts.put(newContact));
 
     _contacts[contact.pubkey] = newContact;
     _contactsStreamController.sink.add(newContact);
-    await box.put(prefFollowedContacts, _contacts.values.toList());
+
     return newContact;
   }
 
   Future<Contact> unfollowContact(Contact contact) async {
-    final box = await Hive.openBox(prefBoxNameSettings);
     final newContact = contact.copyWith(following: false);
+    await _isar.writeTxn(() async => await _isar.contacts.put(newContact));
 
-    _contacts.remove(contact.pubkey);
+    _contacts[contact.pubkey] = newContact;
     _contactsStreamController.sink.add(newContact);
-    await box.put(prefFollowedContacts, _contacts.values.toList());
+
     return newContact;
   }
 

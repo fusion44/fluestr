@@ -1,16 +1,14 @@
+import 'package:fluestr/common/models/contact.dart';
+import 'package:fluestr/common/models/preferences.dart';
+import 'package:fluestr/common/models/relay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 
-import 'common/constants.dart';
 import 'common/contacts_repository.dart';
-import 'common/models/contact.dart';
-import 'common/models/credentials.dart';
-import 'common/models/profile.dart';
-import 'common/models/relay.dart';
 import 'common/pages/home_page.dart';
 import 'common/pages/onboarding.dart';
 import 'common/pages/splash_page.dart';
@@ -25,28 +23,15 @@ late final RelayRepository _relayRepo;
 late final ContactsRepository _contactsRepo;
 late final ContactsBloc _contactsBloc;
 
-Future<void> main() async {
-  await Hive.initFlutter();
-  _registerHiveAdapters();
+const dbPath = '/home/f44/dev/stuff/nostr/fluestr';
+const defaultSchemas = [PreferencesSchema, ContactSchema, RelaySchema];
 
-  final box = await Hive.openBox(prefBoxNameSettings);
+Future<void> main() async {
+  await Isar.open(defaultSchemas, directory: dbPath);
 
   final _router = GoRouter(
     redirect: (state) {
       if (state.location == '/splash') return null;
-
-      final onBoardingFinished = box.get(
-        prefOnboardingFinished,
-        defaultValue: false,
-      );
-
-      if (!onBoardingFinished) {
-        final currentlyOnboarding = box.get(
-          prefCurrentlyOnboarding,
-          defaultValue: false,
-        );
-        if (!currentlyOnboarding) return '/onboarding';
-      }
       return null;
     },
     debugLogDiagnostics: true,
@@ -177,11 +162,4 @@ class MyApp extends StatelessWidget {
     ]);
     return delegates;
   }
-}
-
-void _registerHiveAdapters() {
-  Hive.registerAdapter(ContactAdapter());
-  Hive.registerAdapter(CredentialsAdapter());
-  Hive.registerAdapter(ProfileAdapter());
-  Hive.registerAdapter(RelayAdapter());
 }

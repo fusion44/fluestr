@@ -1,8 +1,8 @@
+import 'package:fluestr/common/models/preferences.dart';
+import 'package:fluestr/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive/hive.dart';
 
-import '../constants.dart';
 import '../models/credentials.dart';
 import 'onboarding/onboarding_0.dart';
 import 'onboarding/onboarding_1.dart';
@@ -15,18 +15,15 @@ class OnboardingPage extends StatefulWidget {
 
 class _OnboardingPageState extends State<OnboardingPage> {
   int _currentStep = 0;
-  late Box _box;
-  late Credentials _credentials;
+  late Preferences _prefs;
 
   @override
   void initState() {
     super.initState();
-    _openBox();
+    _getPrefs();
   }
 
-  void _openBox() async {
-    _box = await Hive.openBox(prefBoxNameSettings);
-  }
+  void _getPrefs() async => _prefs = await getPreferences();
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +57,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       return OnboardingPage0(onFinish: _step0Results);
     } else if (_currentStep == 1) {
       return OnboardingPage1(
-        _credentials,
+        _prefs.credentials,
         onFinish: _step1Results,
       );
     } else if (_currentStep == 2) {
@@ -71,10 +68,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _step0Results(Credentials creds) {
-    _box.put(prefCredentials, creds);
-
     setState(() {
-      _credentials = creds;
+      _prefs = setPreferencesSync(_prefs.copyWith(credentials: creds));
       _currentStep = 1;
     });
   }
@@ -86,7 +81,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _step2Results(BuildContext context) {
-    _box.put(prefOnboardingFinished, true);
+    setPreferencesSync(_prefs.copyWith(onboardingFinished: true));
     context.goNamed('home');
   }
 }

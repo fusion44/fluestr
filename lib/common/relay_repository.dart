@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:fluestr/common/requests/request_result.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../utils.dart';
@@ -90,7 +90,7 @@ class RelayRepository {
   final _eoseStreamController = StreamController<int>();
   late final Stream<int> _eoseStream;
 
-  late final Box _box;
+  late final Isar _isar;
 
   late final Map<String, _ActiveRequestGroup> _activeRequests = {};
 
@@ -133,14 +133,16 @@ class RelayRepository {
     _noticeStream = _noticeStreamController.stream.asBroadcastStream();
     _eoseStream = _eoseStreamController.stream.asBroadcastStream();
 
-    _box = await Hive.openBox(prefBoxNameSettings);
-    final rs = _box.get(prefRelayUrls, defaultValue: <Relay>[]);
-    _relays.addAll(rs.cast<Relay>());
+    _isar = getIsar();
 
-    if (_relays.isEmpty) {
-      _relays.addAll(getStandardRelays());
+    final res = await _isar.relays.where().findAll();
+
+    if (res.isEmpty) {
+      res.addAll(getStandardRelays());
       await _storeRelays();
     }
+
+    _relays.addAll(res);
 
     for (final r in _relays) {
       _connectRelay(r);
@@ -353,7 +355,7 @@ class RelayRepository {
         return;
       }
 
-      debugPrint('Error while receiving data from relay: $err');
+      debugPrint('Error while receiving data from relay ${r.url}: $err');
     });
   }
 
@@ -373,7 +375,7 @@ class RelayRepository {
   }
 
   Future<void> _storeRelays() async {
-    await _box.put(prefRelayUrls, _relays);
+    await _isar.writeTxn(() async => await _isar.relays.putAll(_relays));
   }
 
   String _genId() {

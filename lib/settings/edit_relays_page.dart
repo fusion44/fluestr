@@ -179,6 +179,6 @@ class _EditRelaysPageState extends State<EditRelaysPage> {
       return;
     }
 
-    _relayBloc.add(AddRelay(Relay(relayUrl, true, true)));
+    _relayBloc.add(AddRelay(Relay(url: relayUrl, read: true, write: true)));
   }
 }

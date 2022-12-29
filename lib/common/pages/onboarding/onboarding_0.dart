@@ -150,7 +150,9 @@ class _OnboardingPage0State extends State<OnboardingPage0> {
       widget.onFinish(await _genKeysFromMnemonic());
     } else {
       final pubKey = bip340.getPublicKey(_inputCtrl.text);
-      widget.onFinish(Credentials('', pubKey, _inputCtrl.text));
+      widget.onFinish(
+        Credentials(mnemonic: '', pubKey: pubKey, privKey: _inputCtrl.text),
+      );
     }
   }
 
@@ -159,6 +161,11 @@ class _OnboardingPage0State extends State<OnboardingPage0> {
     final root = bip32.BIP32.fromSeed(seed);
     final privKey = hex.HEX.encode(root.privateKey!.toList());
     final pubKey = bip340.getPublicKey(privKey);
-    return Credentials(_inputCtrl.text, privKey, pubKey);
+
+    return Credentials(
+      mnemonic: _inputCtrl.text,
+      pubKey: pubKey,
+      privKey: privKey,
+    );
   }
 }

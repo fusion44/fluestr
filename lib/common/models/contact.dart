@@ -1,19 +1,16 @@
 import 'package:equatable/equatable.dart';
-import 'package:hive/hive.dart';
+import 'package:isar/isar.dart';
 
+import '../../utils.dart';
 import 'profile.dart';
 
 part 'contact.g.dart';
 
-@HiveType(typeId: 4)
+@Collection(ignore: {'props'})
 class Contact extends Equatable {
-  @HiveField(0)
+  late final Id id = fastHash(pubkey);
   final String pubkey;
-
-  @HiveField(1)
   final Profile profile;
-
-  @HiveField(2)
   final bool following;
 
   Contact({
@@ -35,7 +32,7 @@ class Contact extends Equatable {
 
   Contact.empty([String pubkey = ''])
       : pubkey = pubkey,
-        profile = Profile.empty(),
+        profile = Profile(),
         following = false;
 
   Map<String, dynamic> toJson() {
